@@ -3088,10 +3088,10 @@ update_brew_packages() {
     update_packages=()
     case "$kind" in
         brew:formula)
-            outdated=$(brew outdated --formula --quiet "${packages[@]}" 2>&1)
+            outdated=$(brew outdated --formula --quiet 2>&1)
             ;;
         brew:cask)
-            outdated=$(brew outdated --cask --quiet "${packages[@]}" 2>&1)
+            outdated=$(brew outdated --cask --quiet 2>&1)
             ;;
     esac
     status=$?
