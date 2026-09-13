@@ -2477,13 +2477,13 @@ build_footer() {
     available_columns=$((TERMINAL_COLUMNS - ${#position_prefix}))
 
     if [ "$available_columns" -ge 96 ]; then
-        TUI_FOOTER='Space select | a all | u mode | h/l fold | j/k move | Ctrl+u/d page | Enter review | q quit'
+        TUI_FOOTER='Space select | a all | Tab mode | h/l fold | j/k move | Ctrl+u/d page | Enter review | q quit'
     elif [ "$available_columns" -ge 71 ]; then
-        TUI_FOOTER='Space select | a all | u mode | h/l fold | j/k move | Enter review | q quit'
+        TUI_FOOTER='Space select | a all | Tab mode | h/l fold | j/k move | Enter review | q quit'
     elif [ "$available_columns" -ge 48 ]; then
-        TUI_FOOTER='Space select | u mode | Enter review | q quit'
+        TUI_FOOTER='Space select | Tab mode | Enter review | q quit'
     elif [ "$available_columns" -ge 30 ]; then
-        TUI_FOOTER='Space | u mode | Enter | q quit'
+        TUI_FOOTER='Space | Tab mode | Enter | q quit'
     else
         TUI_FOOTER='Enter | q'
     fi
@@ -2805,7 +2805,7 @@ handle_tui_key() {
     case "$1" in
         ' ') toggle_current_node ;;
         a) toggle_all_tools ;;
-        u) toggle_mode ;;
+        $'\t') toggle_mode ;;
         h|$'\033[D'|$'\033OD') collapse_current_node ;;
         l|$'\033[C'|$'\033OC') expand_current_node ;;
         j|$'\033[B'|$'\033OB') move_down ;;
