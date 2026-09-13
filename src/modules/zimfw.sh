@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+ZIMFW_MODULE_UPDATE_NEEDED=0
+ZIMFW_UPGRADE_NEEDED=0
+
 _zimfw_run_action() {
     local action=$1
     local zim_home=${ZIM_HOME:-$HOME/.zim}
@@ -20,6 +23,36 @@ zimfw_is_installed() {
 
 zimfw_needs_update() {
     return 0
+}
+
+_zimfw_check_updates() {
+    local module_output
+    local status
+    local version_output
+    local zim_home=${ZIM_HOME:-$HOME/.zim}
+    local zimrc=${ZIM_CONFIG_FILE:-$HOME/.zimrc}
+
+    ZIMFW_MODULE_UPDATE_NEEDED=0
+    ZIMFW_UPGRADE_NEEDED=0
+    version_output=$(env ZIM_HOME="$zim_home" ZIM_CONFIG_FILE="$zimrc" \
+        zsh -c 'source "$1" "$2" -v' \
+        -- "$zim_home/zimfw.zsh" check-version 2>&1)
+    status=$?
+    [ "$status" -eq 0 ] || { printf '%s\n' "$version_output" >&2; fatal "$status"; }
+    case "$version_output" in
+        *'Latest zimfw version is '*) ZIMFW_UPGRADE_NEEDED=1 ;;
+    esac
+
+    module_output=$(env ZIM_HOME="$zim_home" ZIM_CONFIG_FILE="$zimrc" \
+        zsh -c 'source "$1" "$2" -v' \
+        -- "$zim_home/zimfw.zsh" check 2>&1)
+    status=$?
+    [ "$status" -eq 0 ] || { printf '%s\n' "$module_output" >&2; fatal "$status"; }
+    case "$module_output" in
+        *': Update available'*) ZIMFW_MODULE_UPDATE_NEEDED=1 ;;
+    esac
+
+    [ "$ZIMFW_UPGRADE_NEEDED" -eq 1 ] || [ "$ZIMFW_MODULE_UPDATE_NEEDED" -eq 1 ]
 }
 
 zimfw_install() {
@@ -62,13 +95,22 @@ zimfw_install() {
 }
 
 zimfw_update() {
+    local changed=0
     local zim_home=${ZIM_HOME:-$HOME/.zim}
     local zimrc=${ZIM_CONFIG_FILE:-$HOME/.zimrc}
 
-    _zimfw_run_action upgrade
+    _zimfw_check_updates || return 1
+    if [ "$ZIMFW_UPGRADE_NEEDED" -eq 1 ]; then
+        _zimfw_run_action upgrade
+        changed=1
+    fi
     if [ ! "$zim_home/init.zsh" -nt "$zimrc" ]; then
         _zimfw_run_action init
     fi
-    _zimfw_run_action update
+    if [ "$ZIMFW_MODULE_UPDATE_NEEDED" -eq 1 ]; then
+        _zimfw_run_action update
+        changed=1
+    fi
+    [ "$changed" -eq 1 ] || return 1
     return 0
 }

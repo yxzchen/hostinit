@@ -118,8 +118,30 @@ docker_install() {
 }
 
 docker_update() {
-    run_as_root apt-get update
+    local after
+    local before
+    local package
+    local status
+    local update_available=0
+
+    refresh_apt_metadata
+    for package in docker-ce docker-ce-cli containerd.io; do
+        if apt_package_has_update "$package"; then
+            update_available=1
+            break
+        fi
+    done
+    [ "$update_available" -eq 1 ] || return 1
+    before=$(dpkg-query -W -f='${binary:Package}=${Version}\n' \
+        docker-ce docker-ce-cli containerd.io)
+    status=$?
+    [ "$status" -eq 0 ] || fatal "$status"
     run_as_root apt-get install --only-upgrade -y docker-ce docker-ce-cli containerd.io
+    after=$(dpkg-query -W -f='${binary:Package}=${Version}\n' \
+        docker-ce docker-ce-cli containerd.io)
+    status=$?
+    [ "$status" -eq 0 ] || fatal "$status"
+    [ "$after" != "$before" ] || return 1
     _docker_configure_service
     return 0
 }

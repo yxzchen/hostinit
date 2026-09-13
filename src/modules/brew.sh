@@ -90,10 +90,18 @@ brew_install() {
 
 brew_update() {
     local brew_bin
+    local output
+    local status
 
     brew_bin=$(_brew_find)
-    run_checked "$brew_bin" update
+    status=$?
+    [ "$status" -eq 0 ] || fatal "$status"
+    output=$("$brew_bin" update 2>&1)
+    status=$?
+    printf '%s\n' "$output"
+    [ "$status" -eq 0 ] || fatal "$status"
     BREW_METADATA_REFRESHED=1
     export HOMEBREW_NO_AUTO_UPDATE=1
+    printf '%s\n' "$output" | grep -Fqx 'Already up-to-date.' && return 1
     return 0
 }

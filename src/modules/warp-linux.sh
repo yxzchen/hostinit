@@ -94,9 +94,21 @@ warp_install() {
 }
 
 warp_update() {
+    local after
+    local before
+    local status
+
     _warp_refresh_key
-    run_as_root apt-get update
+    refresh_apt_metadata
+    apt_package_has_update cloudflare-warp || return 1
+    before=$(dpkg-query -W -f='${Version}' cloudflare-warp)
+    status=$?
+    [ "$status" -eq 0 ] || fatal "$status"
     run_as_root apt-get install --only-upgrade -y cloudflare-warp
+    after=$(dpkg-query -W -f='${Version}' cloudflare-warp)
+    status=$?
+    [ "$status" -eq 0 ] || fatal "$status"
+    [ "$after" != "$before" ] || return 1
     run_as_root systemctl enable --now warp-svc.service
     _warp_configure
     return 0

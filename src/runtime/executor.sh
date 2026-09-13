@@ -57,8 +57,11 @@ run_custom_tool() {
     print_step "updating: ${tool_label}"
     "$update_function"
     status=$?
-    [ "$status" -eq 0 ] || exit "$status"
-    print_success "updated: ${tool_label}"
+    case "$status" in
+        0) print_success "updated: ${tool_label}" ;;
+        1) print_skip "not updated: ${tool_label}" ;;
+        *) exit "$status" ;;
+    esac
 }
 
 flush_package_batch() {
