@@ -1,0 +1,223 @@
+tui:
+  basics:
+    ca-certificates:
+      debian|ubuntu:
+        source: apt
+
+    gnupg:
+      debian|ubuntu:
+        source: apt
+
+    locales:
+      debian|ubuntu:
+        source: apt
+
+    curl:
+      debian|ubuntu:
+        source: apt
+
+    wget:
+      debian|ubuntu:
+        source: apt
+
+    git:
+      debian|ubuntu:
+        source: apt
+
+    vim:
+      debian|ubuntu:
+        source: apt
+
+    rsync:
+      debian|ubuntu:
+        source: apt
+
+    zip:
+      debian|ubuntu:
+        source: apt
+
+    unzip:
+      debian|ubuntu:
+        source: apt
+
+    build-essential:
+      debian|ubuntu:
+        source: apt
+
+  shell:
+    zsh:
+      debian|ubuntu:
+        source: apt
+
+    login-zsh:
+      debian|ubuntu:
+        source: modules/login-zsh-linux.sh
+
+    zimfw:
+      debian|ubuntu|macos:
+        source: modules/zimfw.sh
+
+  conf:
+    locale-en-us:
+      debian|ubuntu:
+        source: modules/locale-en-us-linux.sh
+
+    dotfiles:
+      debian|ubuntu|macos:
+        source: modules/dotfiles.sh
+
+  brew:
+    debian|ubuntu|macos:
+      source: modules/brew.sh
+
+  tools:
+    rg:
+      debian|ubuntu:
+        source: apt
+        packages:
+          - ripgrep
+      macos:
+        source: brew
+        packages:
+          - ripgrep
+
+    jq:
+      debian|ubuntu:
+        source: apt
+
+    tree:
+      debian|ubuntu:
+        source: apt
+      macos:
+        source: brew
+
+    htop:
+      debian|ubuntu:
+        source: apt
+      macos:
+        source: brew
+
+    bat:
+      debian|ubuntu|macos:
+        source: brew
+
+    fd:
+      debian|ubuntu|macos:
+        source: brew
+
+    fzf:
+      debian|ubuntu|macos:
+        source: brew
+
+    exiftool:
+      macos:
+        source: brew
+
+    yazi:
+      debian|ubuntu|macos:
+        source: brew
+
+    ncdu:
+      debian|ubuntu|macos:
+        source: brew
+
+  network:
+    mtr:
+      debian|ubuntu:
+        source: apt
+        packages:
+          - mtr-tiny
+
+    tcpdump:
+      debian|ubuntu:
+        source: apt
+
+    nmap:
+      debian|ubuntu:
+        source: apt
+
+    nc:
+      debian|ubuntu:
+        source: apt
+        packages:
+          - netcat-openbsd
+
+    ip:
+      debian|ubuntu:
+        source: apt
+        packages:
+          - iproute2
+
+    ethtool:
+      debian|ubuntu:
+        source: apt
+
+  monitoring:
+    lsof:
+      debian|ubuntu:
+        source: apt
+
+    strace:
+      debian|ubuntu:
+        source: apt
+
+    perf:
+      debian:
+        source: apt
+        packages:
+          - linux-perf
+      ubuntu:
+        source: apt
+        packages:
+          - linux-tools-generic
+
+  cpp:
+    gdb:
+      debian|ubuntu:
+        source: apt
+
+    cmake:
+      debian|ubuntu:
+        source: apt
+
+    pkg-config:
+      debian|ubuntu:
+        source: apt
+
+  python:
+    uv:
+      debian|ubuntu|macos:
+        source: brew
+
+  frp:
+    frpc:
+      debian|ubuntu|macos:
+        source: brew
+
+    frpc-service:
+      debian|ubuntu:
+        source: modules/frp-service-linux.sh
+      macos:
+        source: modules/frp-service-macos.sh
+
+    frps:
+      debian|ubuntu|macos:
+        source: brew
+
+    frps-service:
+      debian|ubuntu:
+        source: modules/frp-service-linux.sh
+      macos:
+        source: modules/frp-service-macos.sh
+
+  lima:
+    macos:
+      source: brew
+
+  docker:
+    debian|ubuntu:
+      source: modules/docker-linux.sh
+
+  warp:
+    debian|ubuntu:
+      source: modules/warp-linux.sh

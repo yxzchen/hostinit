@@ -1,0 +1,75 @@
+[core]
+    editor = vim
+    autocrlf = input
+
+[pull]
+    rebase = true
+
+[rebase]
+    autoStash = true
+    autoSquash = true
+
+[fetch]
+    prune = true
+
+[push]
+    default = simple
+    autoSetupRemote = true
+    followTags = true
+
+[merge]
+    conflictStyle = diff3
+
+[diff]
+    algorithm = histogram
+    colorMoved = default
+    tool = vimdiff
+
+[branch]
+    sort = -committerdate
+
+[tag]
+    sort = -version:refname
+
+[status]
+    showStash = true
+
+[alias]
+    aliases = config --get-regexp "^alias\\."
+
+    # Common commands
+    co = checkout
+    br = branch
+    st = status
+    ci = commit
+    cm = commit -m
+    ca = commit --amend
+    caa = commit --amend --no-edit
+    df = diff
+
+    # Branches and files
+    sw = switch
+    swc = switch -c
+    rs = restore
+    unstage = restore --staged
+    current = branch --show-current
+    recent = "for-each-ref --sort=-committerdate refs/heads --format='%(committerdate:short) %(refname:short)'"
+
+    # History
+    lg = log --oneline --graph --decorate
+    lga = log --oneline --graph --decorate --all
+    last = log -1 HEAD
+    ll = log --stat
+    lld = log --stat --decorate
+
+    # Remotes
+    pl = pull
+    ps = push
+    fa = fetch --all
+
+    # Rebase
+    rb = rebase
+    rbi = rebase -i
+    rbc = rebase --continue
+    rba = rebase --abort
+    rbs = rebase --skip
