@@ -222,6 +222,10 @@ tui:
     debian|ubuntu:
       source: modules/warp-linux.sh
 
+  snell-server:
+    debian|ubuntu:
+      source: modules/snell-server-linux.sh
+
   actions:
     create-user:
       debian|ubuntu:
