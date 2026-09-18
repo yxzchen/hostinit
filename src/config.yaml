@@ -221,3 +221,8 @@ tui:
   warp:
     debian|ubuntu:
       source: modules/warp-linux.sh
+
+  actions:
+    create-user:
+      debian|ubuntu:
+        source: modules/create-user-linux.sh
