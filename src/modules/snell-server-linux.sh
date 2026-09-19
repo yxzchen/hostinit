@@ -32,7 +32,7 @@ snell-server_install() (
         fatal 1
     fi
 
-    for dependency in curl unzip od tr mktemp install cat rm; do
+    for dependency in curl unzip tr head mktemp install cat rm; do
         if ! command -v "$dependency" >/dev/null 2>&1; then
             printf 'Snell Server requires %s; install it before continuing\n' "$dependency" >&2
             fatal 1
@@ -51,7 +51,11 @@ snell-server_install() (
     run_checked unzip -q "$temp_dir/snell-server.zip" snell-server -d "$temp_dir"
 
     if [ ! -e /etc/snell/snell.conf ]; then
-        psk=$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n') || fatal $?
+        set +o pipefail
+        psk=$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 32)
+        status=$?
+        set -o pipefail
+        [ "$status" -eq 0 ] || fatal "$status"
         [ "${#psk}" -eq 32 ] || fatal 1
         printf '%s\n' \
             '[snell-server]' \
