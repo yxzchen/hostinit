@@ -230,3 +230,6 @@ tui:
     create-user:
       debian|ubuntu:
         source: modules/create-user-linux.sh
+    codex-switch:
+      debian|ubuntu|macos:
+        source: modules/codex-switch.sh
