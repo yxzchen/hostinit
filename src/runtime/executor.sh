@@ -2,37 +2,23 @@ run_custom_tool() {
     local tool_index=$1
     local tool_label=${TOOL_LABELS[$tool_index]}
     local function_prefix=${TOOL_NAMES[$tool_index]}
-    local install_function="${function_prefix}_install"
-    local is_installed_function="${function_prefix}_is_installed"
-    local needs_update_function="${function_prefix}_needs_update"
-    local update_function="${function_prefix}_update"
     local status
 
-    "$is_installed_function"
+    "${function_prefix}_is_installed"
     status=$?
-    if [ "$MODE" = install ]; then
-        case "$status" in
-            0)
-                print_skip "skipped: ${tool_label}"
-                return 0
-                ;;
-            1)
-                print_step "installing: ${tool_label}"
-                "$install_function"
-                status=$?
-                [ "$status" -eq 0 ] || exit "$status"
-                print_success "installed: ${tool_label}"
-                return 0
-                ;;
-            *)
-                exit "$status"
-                ;;
-        esac
-    fi
-
-    case "$status" in
-        0) ;;
-        1)
+    case "$MODE:$status" in
+        install:0)
+            print_skip "skipped: ${tool_label}"
+            return 0
+            ;;
+        install:1)
+            print_step "installing: ${tool_label}"
+            run_checked "${function_prefix}_install"
+            print_success "installed: ${tool_label}"
+            return 0
+            ;;
+        update:0) ;;
+        update:1)
             print_skip "not updated (not installed): ${tool_label}"
             return 0
             ;;
@@ -41,7 +27,7 @@ run_custom_tool() {
             ;;
     esac
 
-    "$needs_update_function"
+    "${function_prefix}_needs_update"
     status=$?
     case "$status" in
         0) ;;
@@ -55,7 +41,7 @@ run_custom_tool() {
     esac
 
     print_step "updating: ${tool_label}"
-    "$update_function"
+    "${function_prefix}_update"
     status=$?
     case "$status" in
         0) print_success "updated: ${tool_label}" ;;
@@ -78,14 +64,13 @@ flush_package_batch() {
 }
 
 execute_selected() {
-    local index=0
+    local index
     local kind
 
     BATCH_KIND=''
     BATCH_TOOL_INDEXES=()
-    while [ "$index" -lt "$TOOL_COUNT" ]; do
+    for ((index = 0; index < TOOL_COUNT; index++)); do
         if [ "${TOOL_ENABLED[$index]}" -ne 1 ] || [ "${SELECTED_TOOLS[$index]}" -ne 1 ]; then
-            index=$((index + 1))
             continue
         fi
 
@@ -100,7 +85,6 @@ execute_selected() {
             BATCH_KIND=$kind
             BATCH_TOOL_INDEXES[${#BATCH_TOOL_INDEXES[@]}]=$index
         fi
-        index=$((index + 1))
     done
     flush_package_batch
 }

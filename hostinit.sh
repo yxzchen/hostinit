@@ -1966,7 +1966,7 @@ __load_custom_8() {
 snell-server_is_installed() {
     [ -x /usr/local/bin/snell-server ] &&
         [ -f /etc/snell/snell.conf ] &&
-        [ -f /etc/systemd/system/snell-server.service ]
+        [ -f /etc/systemd/system/snell.service ]
 }
 
 snell-server_needs_update() {
@@ -2022,7 +2022,7 @@ snell-server_install() (
         [ "${#psk}" -eq 32 ] || fatal 1
         printf '%s\n' \
             '[snell-server]' \
-            'listen = 0.0.0.0:55006' \
+            'listen = 0.0.0.0:5506' \
             "psk = ${psk}" \
             'ipv6 = false' >"$temp_dir/snell.conf" || fatal $?
         run_as_root install -d -m 0755 /etc/snell
@@ -2043,19 +2043,19 @@ snell-server_install() (
         'RestartSec=5s' \
         '' \
         '[Install]' \
-        'WantedBy=multi-user.target' >"$temp_dir/snell-server.service" || fatal $?
+        'WantedBy=multi-user.target' >"$temp_dir/snell.service" || fatal $?
     run_as_root install -d -m 0755 /usr/local/bin
     run_as_root install -m 0755 "$temp_dir/snell-server" /usr/local/bin/snell-server
-    run_as_root install -m 0644 "$temp_dir/snell-server.service" \
-        /etc/systemd/system/snell-server.service
+    run_as_root install -m 0644 "$temp_dir/snell.service" \
+        /etc/systemd/system/snell.service
     run_as_root systemctl daemon-reload
-    run_as_root systemctl enable snell-server.service
+    run_as_root systemctl enable snell.service
     printf '\nSnell Server files:\n'
     printf '  /usr/local/bin/snell-server (installed)\n'
-    printf '  /etc/systemd/system/snell-server.service (installed)\n'
+    printf '  /etc/systemd/system/snell.service (installed)\n'
     printf '  /etc/snell/snell.conf (%s)\n' "$config_action"
     printf '\nAutostart enabled. To start the service manually:\n'
-    printf '  sudo systemctl start snell-server.service\n\n'
+    printf '  sudo systemctl start snell.service\n\n'
 )
 
 snell-server_update() {
@@ -2552,14 +2552,7 @@ restore_terminal() {
     return "$status"
 }
 
-cleanup() {
-    local status=$?
-
-    restore_terminal
-    return "$status"
-}
-
-trap cleanup EXIT
+trap restore_terminal EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 trap 'exit 129' HUP
@@ -2615,12 +2608,6 @@ visit_node_and_ancestors() {
     done
 }
 
-increment_node_selectable_tools() {
-    local node_index=$1
-
-    NODE_SELECTABLE_TOOLS[$node_index]=$((${NODE_SELECTABLE_TOOLS[$node_index]} + 1))
-}
-
 include_tool_in_node_counts() {
     local installed=$2
     local node_index=$1
@@ -2639,14 +2626,13 @@ increment_node_selected_tools() {
 }
 
 rebuild_visible_nodes() {
-    local node_index=0
+    local node_index
     local parent
     local visible
 
     VISIBLE_NODES=()
-    while [ "$node_index" -lt "$NODE_COUNT" ]; do
+    for ((node_index = 0; node_index < NODE_COUNT; node_index++)); do
         if [ "${NODE_ENABLED[$node_index]}" -ne 1 ]; then
-            node_index=$((node_index + 1))
             continue
         fi
 
@@ -2662,16 +2648,15 @@ rebuild_visible_nodes() {
         if [ "$visible" -eq 1 ]; then
             VISIBLE_NODES[${#VISIBLE_NODES[@]}]=$node_index
         fi
-        node_index=$((node_index + 1))
     done
 }
 
 check_installed_tools() {
     local status
-    local tool_index=0
+    local tool_index
 
     TOOL_INSTALLED=()
-    while [ "$tool_index" -lt "$TOOL_COUNT" ]; do
+    for ((tool_index = 0; tool_index < TOOL_COUNT; tool_index++)); do
         TOOL_INSTALLED[$tool_index]=0
         if [ "${TOOL_ENABLED[$tool_index]}" -eq 1 ]; then
             tool_is_installed "$tool_index"
@@ -2682,7 +2667,6 @@ check_installed_tools() {
                 *) return "$status" ;;
             esac
         fi
-        tool_index=$((tool_index + 1))
     done
 }
 
@@ -2698,82 +2682,70 @@ tool_is_selectable() {
 }
 
 refresh_selectable_counts() {
-    local node_index=0
-    local tool_index
+    local node_index
 
+    # Totals include only enabled tools; installation status stays fixed in the TUI.
     NODE_SELECTABLE_TOOLS=()
-    while [ "$node_index" -lt "$NODE_COUNT" ]; do
-        NODE_SELECTABLE_TOOLS[$node_index]=0
-        tool_index=${NODE_TOOL_INDEXES[$node_index]}
-        if [ "$tool_index" -ge 0 ] && tool_is_selectable "$tool_index"; then
-            visit_node_and_ancestors "$node_index" increment_node_selectable_tools
+    for ((node_index = 0; node_index < NODE_COUNT; node_index++)); do
+        if [ "$MODE" = install ]; then
+            NODE_SELECTABLE_TOOLS[$node_index]=$((${NODE_TOTAL_TOOLS[$node_index]} - ${NODE_INSTALLED_TOOLS[$node_index]}))
+        else
+            NODE_SELECTABLE_TOOLS[$node_index]=${NODE_INSTALLED_TOOLS[$node_index]}
         fi
-        node_index=$((node_index + 1))
     done
 }
 
 clear_selection() {
-    local tool_index=0
+    local tool_index
 
-    while [ "$tool_index" -lt "$TOOL_COUNT" ]; do
+    for ((tool_index = 0; tool_index < TOOL_COUNT; tool_index++)); do
         SELECTED_TOOLS[$tool_index]=0
-        tool_index=$((tool_index + 1))
     done
     refresh_selectable_counts
     refresh_selection_counts
 }
 
 initialize_tui() {
-    local node_index=0
-    local tool_index=0
+    local node_index
+    local tool_index
 
     check_installed_tools || return $?
 
     SELECTED_TOOLS=()
-    while [ "$tool_index" -lt "$TOOL_COUNT" ]; do
-        SELECTED_TOOLS[$tool_index]=0
-        tool_index=$((tool_index + 1))
-    done
-
     EXPANDED_NODES=()
     NODE_ENABLED=()
     NODE_INSTALLED_TOOLS=()
     NODE_SELECTED_TOOLS=()
     NODE_TOTAL_TOOLS=()
-    while [ "$node_index" -lt "$NODE_COUNT" ]; do
+    for ((node_index = 0; node_index < NODE_COUNT; node_index++)); do
         EXPANDED_NODES[$node_index]=0
         NODE_ENABLED[$node_index]=0
         NODE_INSTALLED_TOOLS[$node_index]=0
-        NODE_SELECTED_TOOLS[$node_index]=0
         NODE_TOTAL_TOOLS[$node_index]=0
         tool_index=${NODE_TOOL_INDEXES[$node_index]}
         if [ "$tool_index" -ge 0 ] && [ "${TOOL_ENABLED[$tool_index]}" -eq 1 ]; then
             visit_node_and_ancestors "$node_index" include_tool_in_node_counts \
                 "${TOOL_INSTALLED[$tool_index]}"
         fi
-        node_index=$((node_index + 1))
     done
 
     CURRENT_POSITION=0
-    SELECTED_TOOL_COUNT=0
     VIEWPORT_START=0
     TUI_MESSAGE=''
-    refresh_selectable_counts
+    clear_selection
     rebuild_visible_nodes
 }
 
 refresh_selection_counts() {
-    local node_index=0
+    local node_index
     local tool_index
 
     SELECTED_TOOL_COUNT=0
-    while [ "$node_index" -lt "$NODE_COUNT" ]; do
+    for ((node_index = 0; node_index < NODE_COUNT; node_index++)); do
         NODE_SELECTED_TOOLS[$node_index]=0
-        node_index=$((node_index + 1))
     done
 
-    node_index=0
-    while [ "$node_index" -lt "$NODE_COUNT" ]; do
+    for ((node_index = 0; node_index < NODE_COUNT; node_index++)); do
         tool_index=${NODE_TOOL_INDEXES[$node_index]}
         if [ "${NODE_ENABLED[$node_index]}" -eq 1 ] &&
             [ "$tool_index" -ge 0 ] &&
@@ -2781,7 +2753,6 @@ refresh_selection_counts() {
             SELECTED_TOOL_COUNT=$((SELECTED_TOOL_COUNT + 1))
             visit_node_and_ancestors "$node_index" increment_node_selected_tools
         fi
-        node_index=$((node_index + 1))
     done
 }
 
@@ -2800,14 +2771,7 @@ node_selection_state() {
 }
 
 node_is_selectable() {
-    local node_index=$1
-    local tool_index=${NODE_TOOL_INDEXES[$node_index]}
-
-    if [ "$tool_index" -ge 0 ]; then
-        tool_is_selectable "$tool_index"
-    else
-        [ "${NODE_SELECTABLE_TOOLS[$node_index]}" -gt 0 ]
-    fi
+    [ "${NODE_SELECTABLE_TOOLS[$1]}" -gt 0 ]
 }
 
 read_terminal_size() {
@@ -2912,7 +2876,6 @@ render_tui() {
 
     [ "$MODE" = 'update' ] && mode_label='Update'
     update_viewport
-    position=$VIEWPORT_START
     position_end=$((VIEWPORT_START + TUI_NODE_CAPACITY))
     [ "$position_end" -le "$visible_count" ] || position_end=$visible_count
 
@@ -2920,7 +2883,7 @@ render_tui() {
     print_tui_line "hostinit - ${PLATFORM} - ${mode_label} | Selected: ${SELECTED_TOOL_COUNT}"
     printf '\n'
     [ "$TUI_VERTICAL_PADDING" -eq 0 ] || printf '\033[K\n'
-    while [ "$position" -lt "$position_end" ]; do
+    for ((position = VIEWPORT_START; position < position_end; position++)); do
         node_index=${VISIBLE_NODES[$position]}
         tool_index=${NODE_TOOL_INDEXES[$node_index]}
         printf -v indent '%*s' "$((${NODE_DEPTHS[$node_index]} * 2))" ''
@@ -2960,7 +2923,6 @@ render_tui() {
         fi
         print_tui_line "$line" "$style"
         printf '\n'
-        position=$((position + 1))
     done
     [ "$TUI_VERTICAL_PADDING" -eq 0 ] || printf '\033[K\n'
     if [ -n "$TUI_MESSAGE" ]; then
@@ -2973,7 +2935,7 @@ render_tui() {
 }
 
 toggle_current_node() {
-    local candidate=0
+    local candidate
     local node_index
     local target=1
     local tool_index
@@ -2984,7 +2946,7 @@ toggle_current_node() {
 
     node_selection_state "$node_index"
     [ "$NODE_SELECTION_STATE" = all ] && target=0
-    while [ "$candidate" -lt "$NODE_COUNT" ]; do
+    for ((candidate = 0; candidate < NODE_COUNT; candidate++)); do
         tool_index=${NODE_TOOL_INDEXES[$candidate]}
         if [ "${NODE_ENABLED[$candidate]}" -eq 1 ] &&
             [ "$tool_index" -ge 0 ] &&
@@ -2992,30 +2954,26 @@ toggle_current_node() {
             node_is_descendant "$candidate" "$node_index"; then
             SELECTED_TOOLS[$tool_index]=$target
         fi
-        candidate=$((candidate + 1))
     done
     refresh_selection_counts
 }
 
 toggle_all_tools() {
     local target=0
-    local tool_index=0
+    local tool_index
 
-    while [ "$tool_index" -lt "$TOOL_COUNT" ]; do
+    for ((tool_index = 0; tool_index < TOOL_COUNT; tool_index++)); do
         if tool_is_selectable "$tool_index" &&
             [ "${SELECTED_TOOLS[$tool_index]}" -eq 0 ]; then
             target=1
             break
         fi
-        tool_index=$((tool_index + 1))
     done
 
-    tool_index=0
-    while [ "$tool_index" -lt "$TOOL_COUNT" ]; do
+    for ((tool_index = 0; tool_index < TOOL_COUNT; tool_index++)); do
         if tool_is_selectable "$tool_index"; then
             SELECTED_TOOLS[$tool_index]=$target
         fi
-        tool_index=$((tool_index + 1))
     done
     refresh_selection_counts
 }
@@ -3052,14 +3010,13 @@ page_up() {
 
 set_current_node() {
     local node_index=$1
-    local position=0
+    local position
 
-    while [ "$position" -lt "${#VISIBLE_NODES[@]}" ]; do
+    for ((position = 0; position < ${#VISIBLE_NODES[@]}; position++)); do
         if [ "${VISIBLE_NODES[$position]}" -eq "$node_index" ]; then
             CURRENT_POSITION=$position
             return 0
         fi
-        position=$((position + 1))
     done
     return 1
 }
@@ -3076,15 +3033,14 @@ expand_current_node() {
 }
 
 collapse_node() {
-    local candidate=0
+    local candidate
     local node_index=$1
 
-    while [ "$candidate" -lt "$NODE_COUNT" ]; do
+    for ((candidate = 0; candidate < NODE_COUNT; candidate++)); do
         if [ "${NODE_TOOL_INDEXES[$candidate]}" -lt 0 ] &&
             node_is_descendant "$candidate" "$node_index"; then
             EXPANDED_NODES[$candidate]=0
         fi
-        candidate=$((candidate + 1))
     done
 }
 
@@ -3107,10 +3063,10 @@ collapse_current_node() {
 
 print_confirmation_tree() {
     local indent
-    local node_index=0
+    local node_index
     local tool_index
 
-    while [ "$node_index" -lt "$NODE_COUNT" ]; do
+    for ((node_index = 0; node_index < NODE_COUNT; node_index++)); do
         tool_index=${NODE_TOOL_INDEXES[$node_index]}
         if [ "${NODE_SELECTED_TOOLS[$node_index]}" -gt 0 ]; then
             printf -v indent '%*s' "$((${NODE_DEPTHS[$node_index]} * 2))" ''
@@ -3120,7 +3076,6 @@ print_confirmation_tree() {
                 printf '%s- %s\n' "$indent" "${NODE_LABELS[$node_index]}"
             fi
         fi
-        node_index=$((node_index + 1))
     done
 }
 
@@ -3362,14 +3317,12 @@ brew_cask_installed() {
 }
 
 tool_is_installed() {
-    local is_installed_function
     local kind
     local package
     local tool_index=$1
 
     if [ "${TOOL_SOURCES[$tool_index]}" = custom ]; then
-        is_installed_function="${TOOL_NAMES[$tool_index]}_is_installed"
-        "$is_installed_function"
+        "${TOOL_NAMES[$tool_index]}_is_installed"
         return $?
     fi
 
@@ -3516,37 +3469,23 @@ run_custom_tool() {
     local tool_index=$1
     local tool_label=${TOOL_LABELS[$tool_index]}
     local function_prefix=${TOOL_NAMES[$tool_index]}
-    local install_function="${function_prefix}_install"
-    local is_installed_function="${function_prefix}_is_installed"
-    local needs_update_function="${function_prefix}_needs_update"
-    local update_function="${function_prefix}_update"
     local status
 
-    "$is_installed_function"
+    "${function_prefix}_is_installed"
     status=$?
-    if [ "$MODE" = install ]; then
-        case "$status" in
-            0)
-                print_skip "skipped: ${tool_label}"
-                return 0
-                ;;
-            1)
-                print_step "installing: ${tool_label}"
-                "$install_function"
-                status=$?
-                [ "$status" -eq 0 ] || exit "$status"
-                print_success "installed: ${tool_label}"
-                return 0
-                ;;
-            *)
-                exit "$status"
-                ;;
-        esac
-    fi
-
-    case "$status" in
-        0) ;;
-        1)
+    case "$MODE:$status" in
+        install:0)
+            print_skip "skipped: ${tool_label}"
+            return 0
+            ;;
+        install:1)
+            print_step "installing: ${tool_label}"
+            run_checked "${function_prefix}_install"
+            print_success "installed: ${tool_label}"
+            return 0
+            ;;
+        update:0) ;;
+        update:1)
             print_skip "not updated (not installed): ${tool_label}"
             return 0
             ;;
@@ -3555,7 +3494,7 @@ run_custom_tool() {
             ;;
     esac
 
-    "$needs_update_function"
+    "${function_prefix}_needs_update"
     status=$?
     case "$status" in
         0) ;;
@@ -3569,7 +3508,7 @@ run_custom_tool() {
     esac
 
     print_step "updating: ${tool_label}"
-    "$update_function"
+    "${function_prefix}_update"
     status=$?
     case "$status" in
         0) print_success "updated: ${tool_label}" ;;
@@ -3592,14 +3531,13 @@ flush_package_batch() {
 }
 
 execute_selected() {
-    local index=0
+    local index
     local kind
 
     BATCH_KIND=''
     BATCH_TOOL_INDEXES=()
-    while [ "$index" -lt "$TOOL_COUNT" ]; do
+    for ((index = 0; index < TOOL_COUNT; index++)); do
         if [ "${TOOL_ENABLED[$index]}" -ne 1 ] || [ "${SELECTED_TOOLS[$index]}" -ne 1 ]; then
-            index=$((index + 1))
             continue
         fi
 
@@ -3614,7 +3552,6 @@ execute_selected() {
             BATCH_KIND=$kind
             BATCH_TOOL_INDEXES[${#BATCH_TOOL_INDEXES[@]}]=$index
         fi
-        index=$((index + 1))
     done
     flush_package_batch
 }

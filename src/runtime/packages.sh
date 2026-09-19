@@ -153,14 +153,12 @@ brew_cask_installed() {
 }
 
 tool_is_installed() {
-    local is_installed_function
     local kind
     local package
     local tool_index=$1
 
     if [ "${TOOL_SOURCES[$tool_index]}" = custom ]; then
-        is_installed_function="${TOOL_NAMES[$tool_index]}_is_installed"
-        "$is_installed_function"
+        "${TOOL_NAMES[$tool_index]}_is_installed"
         return $?
     fi
 

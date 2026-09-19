@@ -3,7 +3,7 @@
 snell-server_is_installed() {
     [ -x /usr/local/bin/snell-server ] &&
         [ -f /etc/snell/snell.conf ] &&
-        [ -f /etc/systemd/system/snell-server.service ]
+        [ -f /etc/systemd/system/snell.service ]
 }
 
 snell-server_needs_update() {
@@ -59,7 +59,7 @@ snell-server_install() (
         [ "${#psk}" -eq 32 ] || fatal 1
         printf '%s\n' \
             '[snell-server]' \
-            'listen = 0.0.0.0:55006' \
+            'listen = 0.0.0.0:5506' \
             "psk = ${psk}" \
             'ipv6 = false' >"$temp_dir/snell.conf" || fatal $?
         run_as_root install -d -m 0755 /etc/snell
@@ -80,19 +80,19 @@ snell-server_install() (
         'RestartSec=5s' \
         '' \
         '[Install]' \
-        'WantedBy=multi-user.target' >"$temp_dir/snell-server.service" || fatal $?
+        'WantedBy=multi-user.target' >"$temp_dir/snell.service" || fatal $?
     run_as_root install -d -m 0755 /usr/local/bin
     run_as_root install -m 0755 "$temp_dir/snell-server" /usr/local/bin/snell-server
-    run_as_root install -m 0644 "$temp_dir/snell-server.service" \
-        /etc/systemd/system/snell-server.service
+    run_as_root install -m 0644 "$temp_dir/snell.service" \
+        /etc/systemd/system/snell.service
     run_as_root systemctl daemon-reload
-    run_as_root systemctl enable snell-server.service
+    run_as_root systemctl enable snell.service
     printf '\nSnell Server files:\n'
     printf '  /usr/local/bin/snell-server (installed)\n'
-    printf '  /etc/systemd/system/snell-server.service (installed)\n'
+    printf '  /etc/systemd/system/snell.service (installed)\n'
     printf '  /etc/snell/snell.conf (%s)\n' "$config_action"
     printf '\nAutostart enabled. To start the service manually:\n'
-    printf '  sudo systemctl start snell-server.service\n\n'
+    printf '  sudo systemctl start snell.service\n\n'
 )
 
 snell-server_update() {

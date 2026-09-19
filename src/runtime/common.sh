@@ -90,14 +90,7 @@ restore_terminal() {
     return "$status"
 }
 
-cleanup() {
-    local status=$?
-
-    restore_terminal
-    return "$status"
-}
-
-trap cleanup EXIT
+trap restore_terminal EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 trap 'exit 129' HUP
