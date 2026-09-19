@@ -308,8 +308,6 @@ build_footer() {
 
 render_tui() {
     local cursor
-    local depth
-    local depth_index
     local indent
     local indicator
     local line
@@ -336,13 +334,7 @@ render_tui() {
     while [ "$position" -lt "$position_end" ]; do
         node_index=${VISIBLE_NODES[$position]}
         tool_index=${NODE_TOOL_INDEXES[$node_index]}
-        depth=${NODE_DEPTHS[$node_index]}
-        indent=''
-        depth_index=0
-        while [ "$depth_index" -lt "$depth" ]; do
-            indent="${indent}  "
-            depth_index=$((depth_index + 1))
-        done
+        printf -v indent '%*s' "$((${NODE_DEPTHS[$node_index]} * 2))" ''
 
         cursor=' '
         [ "$position" -eq "$CURRENT_POSITION" ] && cursor='>'
@@ -394,27 +386,15 @@ render_tui() {
 toggle_current_node() {
     local candidate=0
     local node_index
-    local state
     local target=1
     local tool_index
 
     [ "${#VISIBLE_NODES[@]}" -gt 0 ] || return 0
     node_index=${VISIBLE_NODES[$CURRENT_POSITION]}
-    tool_index=${NODE_TOOL_INDEXES[$node_index]}
-    if [ "$tool_index" -ge 0 ]; then
-        tool_is_selectable "$tool_index" || return 0
-        if [ "${SELECTED_TOOLS[$tool_index]}" -eq 1 ]; then
-            SELECTED_TOOLS[$tool_index]=0
-        else
-            SELECTED_TOOLS[$tool_index]=1
-        fi
-        refresh_selection_counts
-        return 0
-    fi
+    node_is_selectable "$node_index" || return 0
 
     node_selection_state "$node_index"
-    state=$NODE_SELECTION_STATE
-    [ "$state" = all ] && target=0
+    [ "$NODE_SELECTION_STATE" = all ] && target=0
     while [ "$candidate" -lt "$NODE_COUNT" ]; do
         tool_index=${NODE_TOOL_INDEXES[$candidate]}
         if [ "${NODE_ENABLED[$candidate]}" -eq 1 ] &&
@@ -537,31 +517,14 @@ collapse_current_node() {
 }
 
 print_confirmation_tree() {
-    local depth
-    local depth_index
     local indent
     local node_index=0
-    local selected
     local tool_index
 
     while [ "$node_index" -lt "$NODE_COUNT" ]; do
         tool_index=${NODE_TOOL_INDEXES[$node_index]}
-        selected=0
-        if [ "${NODE_ENABLED[$node_index]}" -eq 1 ]; then
-            if [ "$tool_index" -lt 0 ]; then
-                [ "${NODE_SELECTED_TOOLS[$node_index]}" -gt 0 ] && selected=1
-            elif [ "${SELECTED_TOOLS[$tool_index]}" -eq 1 ]; then
-                selected=1
-            fi
-        fi
-        if [ "$selected" -eq 1 ]; then
-            depth=${NODE_DEPTHS[$node_index]}
-            indent=''
-            depth_index=0
-            while [ "$depth_index" -lt "$depth" ]; do
-                indent="${indent}  "
-                depth_index=$((depth_index + 1))
-            done
+        if [ "${NODE_SELECTED_TOOLS[$node_index]}" -gt 0 ]; then
+            printf -v indent '%*s' "$((${NODE_DEPTHS[$node_index]} * 2))" ''
             if [ "$tool_index" -lt 0 ]; then
                 printf '%s%s\n' "$indent" "${NODE_LABELS[$node_index]}"
             else

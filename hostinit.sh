@@ -2897,8 +2897,6 @@ build_footer() {
 
 render_tui() {
     local cursor
-    local depth
-    local depth_index
     local indent
     local indicator
     local line
@@ -2925,13 +2923,7 @@ render_tui() {
     while [ "$position" -lt "$position_end" ]; do
         node_index=${VISIBLE_NODES[$position]}
         tool_index=${NODE_TOOL_INDEXES[$node_index]}
-        depth=${NODE_DEPTHS[$node_index]}
-        indent=''
-        depth_index=0
-        while [ "$depth_index" -lt "$depth" ]; do
-            indent="${indent}  "
-            depth_index=$((depth_index + 1))
-        done
+        printf -v indent '%*s' "$((${NODE_DEPTHS[$node_index]} * 2))" ''
 
         cursor=' '
         [ "$position" -eq "$CURRENT_POSITION" ] && cursor='>'
@@ -2983,27 +2975,15 @@ render_tui() {
 toggle_current_node() {
     local candidate=0
     local node_index
-    local state
     local target=1
     local tool_index
 
     [ "${#VISIBLE_NODES[@]}" -gt 0 ] || return 0
     node_index=${VISIBLE_NODES[$CURRENT_POSITION]}
-    tool_index=${NODE_TOOL_INDEXES[$node_index]}
-    if [ "$tool_index" -ge 0 ]; then
-        tool_is_selectable "$tool_index" || return 0
-        if [ "${SELECTED_TOOLS[$tool_index]}" -eq 1 ]; then
-            SELECTED_TOOLS[$tool_index]=0
-        else
-            SELECTED_TOOLS[$tool_index]=1
-        fi
-        refresh_selection_counts
-        return 0
-    fi
+    node_is_selectable "$node_index" || return 0
 
     node_selection_state "$node_index"
-    state=$NODE_SELECTION_STATE
-    [ "$state" = all ] && target=0
+    [ "$NODE_SELECTION_STATE" = all ] && target=0
     while [ "$candidate" -lt "$NODE_COUNT" ]; do
         tool_index=${NODE_TOOL_INDEXES[$candidate]}
         if [ "${NODE_ENABLED[$candidate]}" -eq 1 ] &&
@@ -3126,31 +3106,14 @@ collapse_current_node() {
 }
 
 print_confirmation_tree() {
-    local depth
-    local depth_index
     local indent
     local node_index=0
-    local selected
     local tool_index
 
     while [ "$node_index" -lt "$NODE_COUNT" ]; do
         tool_index=${NODE_TOOL_INDEXES[$node_index]}
-        selected=0
-        if [ "${NODE_ENABLED[$node_index]}" -eq 1 ]; then
-            if [ "$tool_index" -lt 0 ]; then
-                [ "${NODE_SELECTED_TOOLS[$node_index]}" -gt 0 ] && selected=1
-            elif [ "${SELECTED_TOOLS[$tool_index]}" -eq 1 ]; then
-                selected=1
-            fi
-        fi
-        if [ "$selected" -eq 1 ]; then
-            depth=${NODE_DEPTHS[$node_index]}
-            indent=''
-            depth_index=0
-            while [ "$depth_index" -lt "$depth" ]; do
-                indent="${indent}  "
-                depth_index=$((depth_index + 1))
-            done
+        if [ "${NODE_SELECTED_TOOLS[$node_index]}" -gt 0 ]; then
+            printf -v indent '%*s' "$((${NODE_DEPTHS[$node_index]} * 2))" ''
             if [ "$tool_index" -lt 0 ]; then
                 printf '%s%s\n' "$indent" "${NODE_LABELS[$node_index]}"
             else
@@ -3253,24 +3216,16 @@ apt_command() {
 }
 
 refresh_apt_metadata() {
-    local status
-
     [ "$APT_METADATA_REFRESHED" -eq 0 ] || return 0
     print_step 'refreshing:' 'apt metadata'
-    apt_command update
-    status=$?
-    [ "$status" -eq 0 ] || exit "$status"
+    run_checked apt_command update
     APT_METADATA_REFRESHED=1
 }
 
 refresh_brew_metadata() {
-    local status
-
     [ "$BREW_METADATA_REFRESHED" -eq 0 ] || return 0
     print_step 'refreshing:' 'brew metadata'
-    brew update
-    status=$?
-    [ "$status" -eq 0 ] || exit "$status"
+    run_checked brew update
     BREW_METADATA_REFRESHED=1
     export HOMEBREW_NO_AUTO_UPDATE=1
 }
@@ -3410,7 +3365,6 @@ tool_is_installed() {
     local is_installed_function
     local kind
     local package
-    local status
     local tool_index=$1
 
     if [ "${TOOL_SOURCES[$tool_index]}" = custom ]; then
@@ -3423,87 +3377,35 @@ tool_is_installed() {
     append_tool_packages "$tool_index"
     kind=$(tool_package_kind "$tool_index") || return $?
     for package in "${BATCH_PACKAGES[@]}"; do
-        package_is_installed "$kind" "$package"
-        status=$?
-        case "$status" in
-            0) ;;
-            1) return 1 ;;
-            *) return "$status" ;;
-        esac
+        package_is_installed "$kind" "$package" || return $?
     done
     return 0
 }
 
-brew_outdated_contains() {
-    local line
-    local outdated=$1
-    local package=$2
-
-    while IFS= read -r line; do
-        [ "$line" = "$package" ] && return 0
-    done <<<"$outdated"
-    return 1
-}
-
-update_apt_packages() {
-    local package
-    local status
-    local -a current_packages
-    local -a update_packages
-
-    current_packages=()
-    update_packages=()
-    for package in "$@"; do
-        if apt_package_has_update "$package"; then
-            update_packages[${#update_packages[@]}]=$package
-        else
-            current_packages[${#current_packages[@]}]=$package
-        fi
-    done
-
-    if [ "${#update_packages[@]}" -eq 0 ]; then
-        print_skip 'not updated (apt):' "${current_packages[@]}"
-        return 1
-    fi
-    print_step 'updating (apt):' "${update_packages[@]}"
-    apt_command install --only-upgrade -y "${update_packages[@]}"
-    status=$?
-    [ "$status" -eq 0 ] || exit "$status"
-    print_success 'updated (apt):' "${update_packages[@]}"
-    if [ "${#current_packages[@]}" -gt 0 ]; then
-        print_skip 'not updated (apt):' "${current_packages[@]}"
-    fi
-    return 0
-}
-
-update_brew_packages() {
+update_packages() {
     local kind=$1
     local manager
     local outdated
     local package
     local status
     local -a current_packages
-    local -a packages
     local -a update_packages
 
     shift
     manager=$(package_manager_label "$kind") || exit $?
-    packages=("$@")
     current_packages=()
     update_packages=()
     case "$kind" in
-        brew:formula)
-            outdated=$(brew outdated --formula --quiet 2>&1)
-            ;;
-        brew:cask)
-            outdated=$(brew outdated --cask --quiet 2>&1)
+        brew:*)
+            outdated=$(brew outdated "--${kind#brew:}" --quiet 2>&1)
+            status=$?
+            [ "$status" -eq 0 ] || { printf '%s\n' "$outdated" >&2; exit "$status"; }
             ;;
     esac
-    status=$?
-    [ "$status" -eq 0 ] || { printf '%s\n' "$outdated" >&2; exit "$status"; }
 
-    for package in "${packages[@]}"; do
-        if brew_outdated_contains "$outdated" "$package"; then
+    for package in "$@"; do
+        if { [ "$kind" = apt ] && apt_package_has_update "$package"; } ||
+            { [ "$kind" != apt ] && installed_list_contains "$outdated" "$package"; }; then
             update_packages[${#update_packages[@]}]=$package
         else
             current_packages[${#current_packages[@]}]=$package
@@ -3516,15 +3418,16 @@ update_brew_packages() {
 
     print_step "updating (${manager}):" "${update_packages[@]}"
     case "$kind" in
+        apt)
+            run_checked apt_command install --only-upgrade -y "${update_packages[@]}"
+            ;;
         brew:formula)
-            brew upgrade "${update_packages[@]}"
+            run_checked brew upgrade "${update_packages[@]}"
             ;;
         brew:cask)
-            brew upgrade --cask "${update_packages[@]}"
+            run_checked brew upgrade --cask "${update_packages[@]}"
             ;;
     esac
-    status=$?
-    [ "$status" -eq 0 ] || exit "$status"
     print_success "updated (${manager}):" "${update_packages[@]}"
     if [ "${#current_packages[@]}" -gt 0 ]; then
         print_skip "not updated (${manager}):" "${current_packages[@]}"
@@ -3538,14 +3441,12 @@ filter_batch_packages() {
     local mode=$2
     local package
     local installed
-    local index=0
     local -a skipped_packages
 
     FILTERED_PACKAGES=()
     skipped_packages=()
     manager=$(package_manager_label "$kind") || return $?
-    while [ "$index" -lt "${#BATCH_PACKAGES[@]}" ]; do
-        package=${BATCH_PACKAGES[$index]}
+    for package in "${BATCH_PACKAGES[@]}"; do
         installed=1
         package_is_installed "$kind" "$package" && installed=0
 
@@ -3555,7 +3456,6 @@ filter_batch_packages() {
         else
             skipped_packages[${#skipped_packages[@]}]=$package
         fi
-        index=$((index + 1))
     done
 
     if [ "${#skipped_packages[@]}" -gt 0 ]; then
@@ -3571,14 +3471,13 @@ run_package_batch() {
     local kind=$1
     local manager
     local mode=$2
-    local status
+    local tool_index
 
     shift 2
     manager=$(package_manager_label "$kind") || exit $?
     BATCH_PACKAGES=()
-    while [ "$#" -gt 0 ]; do
-        append_tool_packages "$1"
-        shift
+    for tool_index in "$@"; do
+        append_tool_packages "$tool_index"
     done
     filter_batch_packages "$kind" "$mode"
     if [ "${#FILTERED_PACKAGES[@]}" -eq 0 ]; then
@@ -3586,49 +3485,31 @@ run_package_batch() {
         return 0
     fi
 
-    case "$kind:$mode" in
-        apt:install)
-            refresh_apt_metadata
-            print_step 'installing (apt):' "${FILTERED_PACKAGES[@]}"
-            apt_command install -y "${FILTERED_PACKAGES[@]}"
+    case "$kind" in
+        apt) refresh_apt_metadata ;;
+        brew:*) refresh_brew_metadata ;;
+    esac
+    if [ "$mode" = update ]; then
+        update_packages "$kind" "${FILTERED_PACKAGES[@]}"
+        return $?
+    fi
+
+    print_step "installing (${manager}):" "${FILTERED_PACKAGES[@]}"
+    case "$kind" in
+        apt)
+            run_checked apt_command install -y "${FILTERED_PACKAGES[@]}"
+            APT_INSTALLED_CACHE_READY=0
             ;;
-        apt:update)
-            refresh_apt_metadata
-            update_apt_packages "${FILTERED_PACKAGES[@]}"
+        brew:formula)
+            run_checked brew install --no-ask "${FILTERED_PACKAGES[@]}"
+            BREW_INSTALLED_CACHE_READY=0
             ;;
-        brew:formula:install)
-            refresh_brew_metadata
-            print_step 'installing (brew):' "${FILTERED_PACKAGES[@]}"
-            brew install --no-ask "${FILTERED_PACKAGES[@]}"
-            ;;
-        brew:formula:update)
-            refresh_brew_metadata
-            update_brew_packages brew:formula "${FILTERED_PACKAGES[@]}"
-            ;;
-        brew:cask:install)
-            refresh_brew_metadata
-            print_step 'installing (brew cask):' "${FILTERED_PACKAGES[@]}"
-            brew install --cask --no-ask "${FILTERED_PACKAGES[@]}"
-            ;;
-        brew:cask:update)
-            refresh_brew_metadata
-            update_brew_packages brew:cask "${FILTERED_PACKAGES[@]}"
+        brew:cask)
+            run_checked brew install --cask --no-ask "${FILTERED_PACKAGES[@]}"
+            BREW_INSTALLED_CACHE_READY=0
             ;;
     esac
-    status=$?
-    if [ "$mode" = update ] && [ "$status" -eq 1 ]; then
-        return 1
-    fi
-    [ "$status" -eq 0 ] || exit "$status"
-    if [ "$mode" = install ]; then
-        case "$kind" in
-            apt) APT_INSTALLED_CACHE_READY=0 ;;
-            brew:formula|brew:cask) BREW_INSTALLED_CACHE_READY=0 ;;
-        esac
-    fi
-    if [ "$mode" = install ]; then
-        print_success "installed (${manager}):" "${FILTERED_PACKAGES[@]}"
-    fi
+    print_success "installed (${manager}):" "${FILTERED_PACKAGES[@]}"
 }
 
 run_custom_tool() {
