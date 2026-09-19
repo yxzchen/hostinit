@@ -14,7 +14,7 @@ _codex_switch_links() {
     local suffix=$2
     local filename
 
-    for filename in auth.json config.json; do
+    for filename in auth.json config.toml; do
         if [ ! -f "$codex_dir/$filename.$suffix" ]; then
             printf 'Missing account file: %s/%s.%s\n' "$codex_dir" "$filename" "$suffix" >&2
             return 1
@@ -25,7 +25,7 @@ _codex_switch_links() {
         fi
     done
 
-    for filename in auth.json config.json; do
+    for filename in auth.json config.toml; do
         ln -sfn "$filename.$suffix" "$codex_dir/$filename" || return 1
     done
 }
@@ -58,17 +58,56 @@ _codex_switch_stop() {
 }
 
 codex-switch_install() {
-    local codex_dir=$HOME/.codex
+    local codex_dir=${CODEX_HOME:-$HOME/.codex}
+    local auth_file
     local suffix
+    local accounts=()
+    local selected=0
+    local index
+    local status=1
 
-    printf 'Codex account suffix: '
-    IFS= read -r suffix || return 1
-    case "$suffix" in
-        ''|*[!a-zA-Z0-9._-]*)
-            printf 'Use a non-empty suffix containing only letters, digits, dots, underscores or hyphens.\n' >&2
-            return 1
-            ;;
-    esac
+    for auth_file in "$codex_dir"/auth.json.*; do
+        [ -f "$auth_file" ] || continue
+        suffix=${auth_file##*/auth.json.}
+        [ -n "$suffix" ] && [ -f "$codex_dir/config.toml.$suffix" ] || continue
+        accounts[${#accounts[@]}]=$suffix
+    done
+    if [ "${#accounts[@]}" -eq 0 ]; then
+        printf 'No matching account files found in %s.\n' "$codex_dir" >&2
+        return 1
+    fi
+
+    if [ ! -t 0 ] || [ ! -t 1 ]; then
+        printf 'Account selection requires an interactive terminal.\n' >&2
+        return 1
+    fi
+    STTY_STATE=$(stty -g) || return 1
+    activate_terminal || return 1
+    while :; do
+        printf '\033[HChoose account (j down, k up, Enter confirm, Esc cancel)\033[K\n\n'
+        for ((index = 0; index < ${#accounts[@]}; index++)); do
+            if [ "$index" -eq "$selected" ]; then
+                printf '\033[7m > %s \033[0m\033[K\n' "${accounts[$index]}"
+            else
+                printf '   %s\033[K\n' "${accounts[$index]}"
+            fi
+        done
+        printf '\033[J'
+        read_tui_key || break
+        case "$TUI_KEY" in
+            k)
+                selected=$(((selected + ${#accounts[@]} - 1) % ${#accounts[@]}))
+                ;;
+            j)
+                selected=$(((selected + 1) % ${#accounts[@]}))
+                ;;
+            ''|$'\r') status=0; break ;;
+            $'\033'|$'\004'|q) break ;;
+        esac
+    done
+    restore_terminal
+    [ "$status" -eq 0 ] || return "$status"
+    suffix=${accounts[$selected]}
 
     _codex_switch_links "$codex_dir" "$suffix" || return 1
     printf 'Switched Codex account to %s.\n' "$suffix"
