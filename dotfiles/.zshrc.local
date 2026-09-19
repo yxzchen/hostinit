@@ -28,6 +28,8 @@ unset LESS_TERMCAP_me
 unset LESS_TERMCAP_ue
 unset LESS_TERMCAP_us
 
+typeset +x FPATH
+
 HISTFILE=~/.zsh_history
 HISTSIZE=100000
 SAVEHIST=100000
