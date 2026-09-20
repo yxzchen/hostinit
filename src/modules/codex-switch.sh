@@ -9,25 +9,65 @@ codex-switch_needs_update() {
     return 1
 }
 
-_codex_switch_links() {
+_codex_switch_account() {
     local codex_dir=$1
     local suffix=$2
-    local filename
+    local work_dir
+    local status=0
 
-    for filename in auth.json config.toml; do
-        if [ ! -f "$codex_dir/$filename.$suffix" ]; then
-            printf 'Missing account file: %s/%s.%s\n' "$codex_dir" "$filename" "$suffix" >&2
+    case "$suffix" in
+        ''|*[!a-zA-Z0-9._-]*)
+            printf 'Invalid provider name: %s\n' "$suffix" >&2
             return 1
-        fi
-        if [ -e "$codex_dir/$filename" ] && [ ! -L "$codex_dir/$filename" ]; then
-            printf 'Not a symlink; leaving unchanged: %s/%s\n' "$codex_dir" "$filename" >&2
-            return 1
-        fi
-    done
+            ;;
+    esac
+    if [ ! -f "$codex_dir/auth.json.$suffix" ]; then
+        printf 'Missing account file: %s/auth.json.%s\n' "$codex_dir" "$suffix" >&2
+        return 1
+    fi
+    if [ -e "$codex_dir/auth.json" ] && [ ! -L "$codex_dir/auth.json" ]; then
+        printf 'Not a symlink; leaving unchanged: %s/auth.json\n' "$codex_dir" >&2
+        return 1
+    fi
 
-    for filename in auth.json config.toml; do
-        ln -sfn "$filename.$suffix" "$codex_dir/$filename" || return 1
-    done
+    work_dir=$(mktemp -d "$codex_dir/.codex-switch.XXXXXX") || return 1
+    if ! cp "$codex_dir/config.toml" "$work_dir/original"; then
+        rm -rf "$work_dir"
+        return 1
+    fi
+    if ! awk -v provider="$suffix" '
+        /^[ \t]*\[/ { in_table = 1 }
+        !in_table && /^[ \t]*model_provider[ \t]*=/ {
+            match($0, /^[ \t]*model_provider[ \t]*=[ \t]*/)
+            prefix = substr($0, 1, RLENGTH)
+            value = substr($0, RLENGTH + 1)
+            if (!match(value, /^("([^"\\]|\\.)*"|\047[^\047]*\047)/)) {
+                invalid = 1
+                exit 1
+            }
+            $0 = prefix "\"" provider "\"" substr(value, RLENGTH + 1)
+            found = 1
+        }
+        { lines[NR] = $0 }
+        END {
+            if (invalid) exit 1
+            if (!found) print "model_provider = \"" provider "\""
+            for (i = 1; i <= NR; i++) print lines[i]
+        }
+    ' "$work_dir/original" > "$work_dir/updated"; then
+        printf 'Could not update model_provider in %s/config.toml.\n' "$codex_dir" >&2
+        rm -rf "$work_dir"
+        return 1
+    fi
+
+    # Write through config.toml so existing links and file permissions survive.
+    if ! cat "$work_dir/updated" > "$codex_dir/config.toml" ||
+        ! ln -sfn "auth.json.$suffix" "$codex_dir/auth.json"; then
+        cat "$work_dir/original" > "$codex_dir/config.toml"
+        status=1
+    fi
+    rm -rf "$work_dir"
+    return "$status"
 }
 
 _codex_switch_stop() {
@@ -69,11 +109,13 @@ codex-switch_install() {
     for auth_file in "$codex_dir"/auth.json.*; do
         [ -f "$auth_file" ] || continue
         suffix=${auth_file##*/auth.json.}
-        [ -n "$suffix" ] && [ -f "$codex_dir/config.toml.$suffix" ] || continue
+        case "$suffix" in
+            ''|*[!a-zA-Z0-9._-]*) continue ;;
+        esac
         accounts[${#accounts[@]}]=$suffix
     done
     if [ "${#accounts[@]}" -eq 0 ]; then
-        printf 'No matching account files found in %s.\n' "$codex_dir" >&2
+        printf 'No auth.json.<provider> account files found in %s.\n' "$codex_dir" >&2
         return 1
     fi
 
@@ -109,7 +151,7 @@ codex-switch_install() {
     [ "$status" -eq 0 ] || return "$status"
     suffix=${accounts[$selected]}
 
-    _codex_switch_links "$codex_dir" "$suffix" || return 1
+    _codex_switch_account "$codex_dir" "$suffix" || return 1
     printf 'Switched Codex account to %s.\n' "$suffix"
     _codex_switch_stop
 }
