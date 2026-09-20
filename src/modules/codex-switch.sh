@@ -104,6 +104,7 @@ codex-switch_install() {
     local accounts=()
     local selected=0
     local index
+    local label
     local status=1
 
     for auth_file in "$codex_dir"/auth.json.*; do
@@ -128,10 +129,15 @@ codex-switch_install() {
     while :; do
         printf '\033[HChoose account (j down, k up, Enter confirm, Esc cancel)\033[K\n\n'
         for ((index = 0; index < ${#accounts[@]}; index++)); do
+            label=${accounts[$index]}
+            if [ -L "$codex_dir/auth.json" ] &&
+                [ "$codex_dir/auth.json" -ef "$codex_dir/auth.json.${accounts[$index]}" ]; then
+                label="$label (current)"
+            fi
             if [ "$index" -eq "$selected" ]; then
-                printf '\033[7m > %s \033[0m\033[K\n' "${accounts[$index]}"
+                printf '\033[7m > %s \033[0m\033[K\n' "$label"
             else
-                printf '   %s\033[K\n' "${accounts[$index]}"
+                printf '   %s\033[K\n' "$label"
             fi
         done
         printf '\033[J'
