@@ -52,7 +52,7 @@ _frp_systemd_create_config() {
 _frp_systemd_print_next_step() {
     local component=$1
 
-    printf '\n\033[1;31mACTION REQUIRED:\033[0m\n'
+    printf '\n\033[1;33mACTION REQUIRED:\033[0m\n'
     printf 'Edit /etc/frp/%s.toml, then start the registered service:\n' "$component"
     printf '  sudo systemctl start %s.service\n' "$component"
     printf '\n'

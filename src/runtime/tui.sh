@@ -160,7 +160,10 @@ initialize_tui() {
     CURRENT_POSITION=0
     VIEWPORT_START=0
     TUI_MESSAGE=''
+    TUI_HELP_OPEN=0
     clear_selection
+    INSTALL_SELECTED_TOOLS=("${SELECTED_TOOLS[@]}")
+    UPDATE_SELECTED_TOOLS=("${SELECTED_TOOLS[@]}")
     rebuild_visible_nodes
 }
 
@@ -260,40 +263,55 @@ update_viewport() {
 print_tui_line() {
     local line=$1
     local style=${2:-}
+    local detail=${3:-}
+    local remaining
 
-    printf '%s%.*s\033[0m\033[K' "$style" "$TERMINAL_COLUMNS" "$line"
+    line=${line:0:$TERMINAL_COLUMNS}
+    remaining=$((TERMINAL_COLUMNS - ${#line}))
+    printf '%s%s' "$style" "$line"
+    if [ "$remaining" -gt 0 ] && [ -n "$detail" ]; then
+        printf '\033[2m%.*s' "$remaining" "$detail"
+    fi
+    printf '\033[0m\033[K'
 }
 
 build_footer() {
     local available_columns
+    local candidate
     local position_prefix=''
 
     if [ "${#VISIBLE_NODES[@]}" -gt "$TUI_NODE_CAPACITY" ]; then
         position_prefix="$((CURRENT_POSITION + 1))/${#VISIBLE_NODES[@]} | "
     fi
     available_columns=$((TERMINAL_COLUMNS - ${#position_prefix}))
-
-    if [ "$available_columns" -ge 96 ]; then
-        TUI_FOOTER='Space select | a all | Tab mode | h/l fold | j/k move | Ctrl+u/d page | Enter review | q quit'
-    elif [ "$available_columns" -ge 71 ]; then
-        TUI_FOOTER='Space select | a all | Tab mode | h/l fold | j/k move | Enter review | q quit'
-    elif [ "$available_columns" -ge 48 ]; then
-        TUI_FOOTER='Space select | Tab mode | Enter review | q quit'
-    elif [ "$available_columns" -ge 30 ]; then
-        TUI_FOOTER='Space | Tab mode | Enter | q quit'
-    else
-        TUI_FOOTER='Enter | q'
+    if [ "$available_columns" -lt 6 ]; then
+        position_prefix=''
+        available_columns=$TERMINAL_COLUMNS
     fi
+    TUI_FOOTER='?'
+    for candidate in \
+        'Space toggle | a all/none | Tab mode | Enter review | ? help | q quit' \
+        'Space toggle | Tab mode | Enter review | ? help' \
+        'Space | Tab | Enter | ? help | q quit' \
+        'Space | Tab | Enter | ? help' \
+        '? help | q quit' \
+        '? help'; do
+        if [ "${#candidate}" -le "$available_columns" ]; then
+            TUI_FOOTER=$candidate
+            break
+        fi
+    done
     TUI_FOOTER="${position_prefix}${TUI_FOOTER}"
 }
 
 render_tui() {
     local cursor
+    local detail
     local indent
     local indicator
     local line
     local marker
-    local mode_label='Install'
+    local mode_tabs='[Install]  Update '
     local node_index
     local position
     local position_end
@@ -302,13 +320,13 @@ render_tui() {
     local tool_index
     local visible_count=${#VISIBLE_NODES[@]}
 
-    [ "$MODE" = 'update' ] && mode_label='Update'
+    [ "$MODE" = 'update' ] && mode_tabs=' Install  [Update]'
     update_viewport
     position_end=$((VIEWPORT_START + TUI_NODE_CAPACITY))
     [ "$position_end" -le "$visible_count" ] || position_end=$visible_count
 
     printf '\033[H'
-    print_tui_line "hostinit - ${PLATFORM} - ${mode_label} | Selected: ${SELECTED_TOOL_COUNT}"
+    print_tui_line "hostinit - ${PLATFORM}    ${mode_tabs}"
     printf '\n'
     [ "$TUI_VERTICAL_PADDING" -eq 0 ] || printf '\033[K\n'
     for ((position = VIEWPORT_START; position < position_end; position++)); do
@@ -346,14 +364,15 @@ render_tui() {
         fi
         line="$cursor $indent[$marker] ${NODE_LABELS[$node_index]}"
         [ -z "$indicator" ] || line="$line $indicator"
+        detail=''
         if [ "$tool_index" -lt 0 ]; then
             if [ "$MODE" = update ]; then
-                line="$line (${NODE_SELECTED_TOOLS[$node_index]}/${NODE_SELECTABLE_TOOLS[$node_index]})"
+                detail=" (${NODE_SELECTED_TOOLS[$node_index]}/${NODE_SELECTABLE_TOOLS[$node_index]})"
             else
-                line="$line (${NODE_INSTALLED_TOOLS[$node_index]}/${NODE_TOTAL_TOOLS[$node_index]})"
+                detail=" (${NODE_INSTALLED_TOOLS[$node_index]}/${NODE_TOTAL_TOOLS[$node_index]})"
             fi
         fi
-        print_tui_line "$line" "$style"
+        print_tui_line "$line" "$style" "$detail"
         printf '\n'
     done
     [ "$TUI_VERTICAL_PADDING" -eq 0 ] || printf '\033[K\n'
@@ -364,6 +383,74 @@ render_tui() {
         print_tui_line "$TUI_FOOTER" $'\033[2m'
     fi
     printf '\033[J'
+}
+
+show_help() {
+    TUI_HELP_OPEN=1
+    HELP_POSITION=0
+    HELP_LINES=(
+        'Selection'
+        '  Space       Toggle item or group'
+        '  a           Select all / clear all'
+        '  Tab         Switch install / update'
+        '  Selections are saved for each mode.'
+        ''
+        'Navigation'
+        '  Up / k      Previous row'
+        '  Down / j    Next row'
+        '  Left / h    Collapse group / parent'
+        '  Right / l   Expand group'
+        '  Ctrl+u / d  Page up / down'
+        ''
+        'Review and exit'
+        '  Enter       Review current mode only'
+        '  ?           Show this help'
+        '  q           Quit without running'
+        ''
+        'Markers: [ ] none, [-] some, [x] all'
+    )
+}
+
+clamp_help_position() {
+    local maximum=$((${#HELP_LINES[@]} - TUI_NODE_CAPACITY))
+
+    [ "$maximum" -ge 0 ] || maximum=0
+    [ "$HELP_POSITION" -le "$maximum" ] || HELP_POSITION=$maximum
+    [ "$HELP_POSITION" -ge 0 ] || HELP_POSITION=0
+}
+
+render_help() {
+    local index
+    local position_end
+    local footer='j/k scroll | ?/Esc/Enter/q back'
+
+    read_terminal_size
+    clamp_help_position
+    position_end=$((HELP_POSITION + TUI_NODE_CAPACITY))
+    [ "$position_end" -le "${#HELP_LINES[@]}" ] || position_end=${#HELP_LINES[@]}
+    printf '\033[H'
+    print_tui_line 'Keyboard help' $'\033[1m'
+    printf '\n'
+    [ "$TUI_VERTICAL_PADDING" -eq 0 ] || printf '\033[K\n'
+    for ((index = HELP_POSITION; index < position_end; index++)); do
+        print_tui_line "${HELP_LINES[$index]}"
+        printf '\n'
+    done
+    [ "$TUI_VERTICAL_PADDING" -eq 0 ] || printf '\033[K\n'
+    [ "$TERMINAL_COLUMNS" -ge "${#footer}" ] || footer='? back | j/k scroll'
+    print_tui_line "$footer" $'\033[2m'
+    printf '\033[J'
+}
+
+handle_help_key() {
+    case "$1" in
+        '?'|q|$'\033'|''|$'\r') TUI_HELP_OPEN=0 ;;
+        j|$'\033[B'|$'\033OB') HELP_POSITION=$((HELP_POSITION + 1)) ;;
+        k|$'\033[A'|$'\033OA') HELP_POSITION=$((HELP_POSITION - 1)) ;;
+        $'\025') HELP_POSITION=$((HELP_POSITION - TUI_NODE_CAPACITY)) ;;
+        $'\004') HELP_POSITION=$((HELP_POSITION + TUI_NODE_CAPACITY)) ;;
+    esac
+    clamp_help_position
 }
 
 toggle_current_node() {
@@ -517,13 +604,13 @@ confirm_selection() {
 
     [ "$MODE" = 'update' ] && mode_label='Update'
     if [ "$SELECTED_TOOL_COUNT" -eq 0 ]; then
-        TUI_MESSAGE='Select at least one item'
+        TUI_MESSAGE='Select an item with Space, then press Enter'
         return 0
     fi
 
     TUI_MESSAGE=''
     restore_terminal
-    printf '\n%s selected tools:\n\n' "$mode_label"
+    printf '\nReview selected items (%s):\n\n' "$mode_label"
     print_confirmation_tree
     printf '\n%s %s selected tools? [y/N] ' "$mode_label" "$SELECTED_TOOL_COUNT"
     IFS= read -r answer || answer=''
@@ -549,15 +636,25 @@ read_tui_key() {
 
 toggle_mode() {
     if [ "$MODE" = install ]; then
+        INSTALL_SELECTED_TOOLS=("${SELECTED_TOOLS[@]}")
         MODE='update'
+        SELECTED_TOOLS=("${UPDATE_SELECTED_TOOLS[@]}")
     else
+        UPDATE_SELECTED_TOOLS=("${SELECTED_TOOLS[@]}")
         MODE='install'
+        SELECTED_TOOLS=("${INSTALL_SELECTED_TOOLS[@]}")
     fi
-    clear_selection
+    refresh_selectable_counts
+    refresh_selection_counts
 }
 
 handle_tui_key() {
+    if [ "${TUI_HELP_OPEN:-0}" -eq 1 ]; then
+        handle_help_key "$1"
+        return $?
+    fi
     case "$1" in
+        '?') show_help ;;
         ' ') toggle_current_node ;;
         a) toggle_all_tools ;;
         $'\t') toggle_mode ;;
@@ -586,7 +683,11 @@ run_tui() {
     initialize_tui || return $?
 
     while [ -z "$ACTION" ]; do
-        render_tui
+        if [ "$TUI_HELP_OPEN" -eq 1 ]; then
+            render_help
+        else
+            render_tui
+        fi
         read_tui_key || return $?
         TUI_MESSAGE=''
         handle_tui_key "$TUI_KEY" || return $?

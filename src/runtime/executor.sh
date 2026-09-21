@@ -5,26 +5,30 @@ run_custom_tool() {
     local status
 
     if ! tool_supports_action "$tool_index" "$MODE"; then
-        print_skip "skipped (${MODE} not supported): ${tool_label}"
+        print_skip "Skipped (${MODE} not supported): ${tool_label}"
         return 0
     fi
 
+    CURRENT_OPERATION=$tool_label
     tool_is_installed "$tool_index"
     status=$?
     case "$MODE:$status" in
         install:0)
-            print_skip "skipped: ${tool_label}"
+            print_skip "Skipped (already installed): ${tool_label}"
+            CURRENT_OPERATION=''
             return 0
             ;;
         install:1)
-            print_step "installing: ${tool_label}"
+            print_step "Installing: ${tool_label}"
             run_checked "${function_prefix}_install"
-            print_success "installed: ${tool_label}"
+            print_success "Installed: ${tool_label}"
+            CURRENT_OPERATION=''
             return 0
             ;;
         update:0) ;;
         update:1)
-            print_skip "not updated (not installed): ${tool_label}"
+            print_skip "Skipped (not installed): ${tool_label}"
+            CURRENT_OPERATION=''
             return 0
             ;;
         *)
@@ -32,14 +36,15 @@ run_custom_tool() {
             ;;
     esac
 
-    print_step "updating: ${tool_label}"
+    print_step "Updating: ${tool_label}"
     "${function_prefix}_update"
     status=$?
     case "$status" in
-        0) print_success "updated: ${tool_label}" ;;
-        1) print_skip "not updated: ${tool_label}" ;;
+        0) print_success "Updated: ${tool_label}" ;;
+        1) print_skip "No changes: ${tool_label}" ;;
         *) exit "$status" ;;
     esac
+    CURRENT_OPERATION=''
 }
 
 flush_package_batch() {

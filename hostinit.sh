@@ -1156,7 +1156,7 @@ login-zsh_install() {
     status=$?
     [ "$status" -eq 0 ] || fatal "$status"
     run_as_root chsh -s "$allowed_shell" "$user"
-    printf '\n\033[1;31mACTION REQUIRED:\033[0m\n'
+    printf '\n\033[1;33mACTION REQUIRED:\033[0m\n'
     printf 'Sign out and sign in again to use the new login shell.\n'
     printf '\n'
 }
@@ -1581,7 +1581,7 @@ _frp_systemd_create_config() {
 _frp_systemd_print_next_step() {
     local component=$1
 
-    printf '\n\033[1;31mACTION REQUIRED:\033[0m\n'
+    printf '\n\033[1;33mACTION REQUIRED:\033[0m\n'
     printf 'Edit /etc/frp/%s.toml, then start the registered service:\n' "$component"
     printf '  sudo systemctl start %s.service\n' "$component"
     printf '\n'
@@ -1674,7 +1674,7 @@ _docker_configure_service() {
         *' docker '*) ;;
         *)
             run_as_root usermod -aG docker "$user"
-            printf '\n\033[1;31mACTION REQUIRED:\033[0m\n'
+            printf '\n\033[1;33mACTION REQUIRED:\033[0m\n'
             printf 'Sign out and sign in again before using Docker without sudo.\n'
             printf '\n'
             ;;
@@ -2314,7 +2314,7 @@ _frp_brew_print_next_step() {
     prefix=$(brew --prefix)
     status=$?
     [ "$status" -eq 0 ] || fatal "$status"
-    printf '\n\033[1;31mACTION REQUIRED:\033[0m\n'
+    printf '\n\033[1;33mACTION REQUIRED:\033[0m\n'
     printf 'Edit %s/etc/frp/%s.toml, then start the Homebrew service:\n' \
         "$prefix" "$component"
     printf '  brew services start %s\n' "$component"
@@ -2437,6 +2437,7 @@ TUI_ACTIVE=0
 STTY_STATE=''
 ACTION=''
 MODE='install'
+CURRENT_OPERATION=''
 APT_METADATA_REFRESHED=0
 APT_INSTALLED_CACHE_READY=0
 APT_INSTALLED_PACKAGES=''
@@ -2494,7 +2495,11 @@ print_success() {
 }
 
 print_skip() {
-    _print_status '1;33' "$@"
+    _print_status '90' "$@"
+}
+
+print_failure() {
+    _print_status '1;31' "$@" >&2
 }
 
 _os_release_value() {
@@ -2525,7 +2530,17 @@ restore_terminal() {
     return "$status"
 }
 
-trap restore_terminal EXIT
+finish() {
+    local status=$?
+
+    restore_terminal
+    if [ "$status" -ne 0 ] && [ -n "$CURRENT_OPERATION" ]; then
+        print_failure "Failed: ${CURRENT_OPERATION} (exit ${status})"
+    fi
+    return "$status"
+}
+
+trap finish EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 trap 'exit 129' HUP
@@ -2715,7 +2730,10 @@ initialize_tui() {
     CURRENT_POSITION=0
     VIEWPORT_START=0
     TUI_MESSAGE=''
+    TUI_HELP_OPEN=0
     clear_selection
+    INSTALL_SELECTED_TOOLS=("${SELECTED_TOOLS[@]}")
+    UPDATE_SELECTED_TOOLS=("${SELECTED_TOOLS[@]}")
     rebuild_visible_nodes
 }
 
@@ -2815,40 +2833,55 @@ update_viewport() {
 print_tui_line() {
     local line=$1
     local style=${2:-}
+    local detail=${3:-}
+    local remaining
 
-    printf '%s%.*s\033[0m\033[K' "$style" "$TERMINAL_COLUMNS" "$line"
+    line=${line:0:$TERMINAL_COLUMNS}
+    remaining=$((TERMINAL_COLUMNS - ${#line}))
+    printf '%s%s' "$style" "$line"
+    if [ "$remaining" -gt 0 ] && [ -n "$detail" ]; then
+        printf '\033[2m%.*s' "$remaining" "$detail"
+    fi
+    printf '\033[0m\033[K'
 }
 
 build_footer() {
     local available_columns
+    local candidate
     local position_prefix=''
 
     if [ "${#VISIBLE_NODES[@]}" -gt "$TUI_NODE_CAPACITY" ]; then
         position_prefix="$((CURRENT_POSITION + 1))/${#VISIBLE_NODES[@]} | "
     fi
     available_columns=$((TERMINAL_COLUMNS - ${#position_prefix}))
-
-    if [ "$available_columns" -ge 96 ]; then
-        TUI_FOOTER='Space select | a all | Tab mode | h/l fold | j/k move | Ctrl+u/d page | Enter review | q quit'
-    elif [ "$available_columns" -ge 71 ]; then
-        TUI_FOOTER='Space select | a all | Tab mode | h/l fold | j/k move | Enter review | q quit'
-    elif [ "$available_columns" -ge 48 ]; then
-        TUI_FOOTER='Space select | Tab mode | Enter review | q quit'
-    elif [ "$available_columns" -ge 30 ]; then
-        TUI_FOOTER='Space | Tab mode | Enter | q quit'
-    else
-        TUI_FOOTER='Enter | q'
+    if [ "$available_columns" -lt 6 ]; then
+        position_prefix=''
+        available_columns=$TERMINAL_COLUMNS
     fi
+    TUI_FOOTER='?'
+    for candidate in \
+        'Space toggle | a all/none | Tab mode | Enter review | ? help | q quit' \
+        'Space toggle | Tab mode | Enter review | ? help' \
+        'Space | Tab | Enter | ? help | q quit' \
+        'Space | Tab | Enter | ? help' \
+        '? help | q quit' \
+        '? help'; do
+        if [ "${#candidate}" -le "$available_columns" ]; then
+            TUI_FOOTER=$candidate
+            break
+        fi
+    done
     TUI_FOOTER="${position_prefix}${TUI_FOOTER}"
 }
 
 render_tui() {
     local cursor
+    local detail
     local indent
     local indicator
     local line
     local marker
-    local mode_label='Install'
+    local mode_tabs='[Install]  Update '
     local node_index
     local position
     local position_end
@@ -2857,13 +2890,13 @@ render_tui() {
     local tool_index
     local visible_count=${#VISIBLE_NODES[@]}
 
-    [ "$MODE" = 'update' ] && mode_label='Update'
+    [ "$MODE" = 'update' ] && mode_tabs=' Install  [Update]'
     update_viewport
     position_end=$((VIEWPORT_START + TUI_NODE_CAPACITY))
     [ "$position_end" -le "$visible_count" ] || position_end=$visible_count
 
     printf '\033[H'
-    print_tui_line "hostinit - ${PLATFORM} - ${mode_label} | Selected: ${SELECTED_TOOL_COUNT}"
+    print_tui_line "hostinit - ${PLATFORM}    ${mode_tabs}"
     printf '\n'
     [ "$TUI_VERTICAL_PADDING" -eq 0 ] || printf '\033[K\n'
     for ((position = VIEWPORT_START; position < position_end; position++)); do
@@ -2901,14 +2934,15 @@ render_tui() {
         fi
         line="$cursor $indent[$marker] ${NODE_LABELS[$node_index]}"
         [ -z "$indicator" ] || line="$line $indicator"
+        detail=''
         if [ "$tool_index" -lt 0 ]; then
             if [ "$MODE" = update ]; then
-                line="$line (${NODE_SELECTED_TOOLS[$node_index]}/${NODE_SELECTABLE_TOOLS[$node_index]})"
+                detail=" (${NODE_SELECTED_TOOLS[$node_index]}/${NODE_SELECTABLE_TOOLS[$node_index]})"
             else
-                line="$line (${NODE_INSTALLED_TOOLS[$node_index]}/${NODE_TOTAL_TOOLS[$node_index]})"
+                detail=" (${NODE_INSTALLED_TOOLS[$node_index]}/${NODE_TOTAL_TOOLS[$node_index]})"
             fi
         fi
-        print_tui_line "$line" "$style"
+        print_tui_line "$line" "$style" "$detail"
         printf '\n'
     done
     [ "$TUI_VERTICAL_PADDING" -eq 0 ] || printf '\033[K\n'
@@ -2919,6 +2953,74 @@ render_tui() {
         print_tui_line "$TUI_FOOTER" $'\033[2m'
     fi
     printf '\033[J'
+}
+
+show_help() {
+    TUI_HELP_OPEN=1
+    HELP_POSITION=0
+    HELP_LINES=(
+        'Selection'
+        '  Space       Toggle item or group'
+        '  a           Select all / clear all'
+        '  Tab         Switch install / update'
+        '  Selections are saved for each mode.'
+        ''
+        'Navigation'
+        '  Up / k      Previous row'
+        '  Down / j    Next row'
+        '  Left / h    Collapse group / parent'
+        '  Right / l   Expand group'
+        '  Ctrl+u / d  Page up / down'
+        ''
+        'Review and exit'
+        '  Enter       Review current mode only'
+        '  ?           Show this help'
+        '  q           Quit without running'
+        ''
+        'Markers: [ ] none, [-] some, [x] all'
+    )
+}
+
+clamp_help_position() {
+    local maximum=$((${#HELP_LINES[@]} - TUI_NODE_CAPACITY))
+
+    [ "$maximum" -ge 0 ] || maximum=0
+    [ "$HELP_POSITION" -le "$maximum" ] || HELP_POSITION=$maximum
+    [ "$HELP_POSITION" -ge 0 ] || HELP_POSITION=0
+}
+
+render_help() {
+    local index
+    local position_end
+    local footer='j/k scroll | ?/Esc/Enter/q back'
+
+    read_terminal_size
+    clamp_help_position
+    position_end=$((HELP_POSITION + TUI_NODE_CAPACITY))
+    [ "$position_end" -le "${#HELP_LINES[@]}" ] || position_end=${#HELP_LINES[@]}
+    printf '\033[H'
+    print_tui_line 'Keyboard help' $'\033[1m'
+    printf '\n'
+    [ "$TUI_VERTICAL_PADDING" -eq 0 ] || printf '\033[K\n'
+    for ((index = HELP_POSITION; index < position_end; index++)); do
+        print_tui_line "${HELP_LINES[$index]}"
+        printf '\n'
+    done
+    [ "$TUI_VERTICAL_PADDING" -eq 0 ] || printf '\033[K\n'
+    [ "$TERMINAL_COLUMNS" -ge "${#footer}" ] || footer='? back | j/k scroll'
+    print_tui_line "$footer" $'\033[2m'
+    printf '\033[J'
+}
+
+handle_help_key() {
+    case "$1" in
+        '?'|q|$'\033'|''|$'\r') TUI_HELP_OPEN=0 ;;
+        j|$'\033[B'|$'\033OB') HELP_POSITION=$((HELP_POSITION + 1)) ;;
+        k|$'\033[A'|$'\033OA') HELP_POSITION=$((HELP_POSITION - 1)) ;;
+        $'\025') HELP_POSITION=$((HELP_POSITION - TUI_NODE_CAPACITY)) ;;
+        $'\004') HELP_POSITION=$((HELP_POSITION + TUI_NODE_CAPACITY)) ;;
+    esac
+    clamp_help_position
 }
 
 toggle_current_node() {
@@ -3072,13 +3174,13 @@ confirm_selection() {
 
     [ "$MODE" = 'update' ] && mode_label='Update'
     if [ "$SELECTED_TOOL_COUNT" -eq 0 ]; then
-        TUI_MESSAGE='Select at least one item'
+        TUI_MESSAGE='Select an item with Space, then press Enter'
         return 0
     fi
 
     TUI_MESSAGE=''
     restore_terminal
-    printf '\n%s selected tools:\n\n' "$mode_label"
+    printf '\nReview selected items (%s):\n\n' "$mode_label"
     print_confirmation_tree
     printf '\n%s %s selected tools? [y/N] ' "$mode_label" "$SELECTED_TOOL_COUNT"
     IFS= read -r answer || answer=''
@@ -3104,15 +3206,25 @@ read_tui_key() {
 
 toggle_mode() {
     if [ "$MODE" = install ]; then
+        INSTALL_SELECTED_TOOLS=("${SELECTED_TOOLS[@]}")
         MODE='update'
+        SELECTED_TOOLS=("${UPDATE_SELECTED_TOOLS[@]}")
     else
+        UPDATE_SELECTED_TOOLS=("${SELECTED_TOOLS[@]}")
         MODE='install'
+        SELECTED_TOOLS=("${INSTALL_SELECTED_TOOLS[@]}")
     fi
-    clear_selection
+    refresh_selectable_counts
+    refresh_selection_counts
 }
 
 handle_tui_key() {
+    if [ "${TUI_HELP_OPEN:-0}" -eq 1 ]; then
+        handle_help_key "$1"
+        return $?
+    fi
     case "$1" in
+        '?') show_help ;;
         ' ') toggle_current_node ;;
         a) toggle_all_tools ;;
         $'\t') toggle_mode ;;
@@ -3141,7 +3253,11 @@ run_tui() {
     initialize_tui || return $?
 
     while [ -z "$ACTION" ]; do
-        render_tui
+        if [ "$TUI_HELP_OPEN" -eq 1 ]; then
+            render_help
+        else
+            render_tui
+        fi
         read_tui_key || return $?
         TUI_MESSAGE=''
         handle_tui_key "$TUI_KEY" || return $?
@@ -3159,14 +3275,14 @@ apt_command() {
 
 refresh_apt_metadata() {
     [ "$APT_METADATA_REFRESHED" -eq 0 ] || return 0
-    print_step 'refreshing:' 'apt metadata'
+    print_step 'Refreshing:' 'apt metadata'
     run_checked apt_command update
     APT_METADATA_REFRESHED=1
 }
 
 refresh_brew_metadata() {
     [ "$BREW_METADATA_REFRESHED" -eq 0 ] || return 0
-    print_step 'refreshing:' 'brew metadata'
+    print_step 'Refreshing:' 'brew metadata'
     run_checked brew update
     BREW_METADATA_REFRESHED=1
     export HOMEBREW_NO_AUTO_UPDATE=1
@@ -3367,11 +3483,11 @@ update_packages() {
         fi
     done
     if [ "${#update_packages[@]}" -eq 0 ]; then
-        print_skip "not updated (${manager}):" "${current_packages[@]}"
+        print_skip "No changes (${manager}):" "${current_packages[@]}"
         return 1
     fi
 
-    print_step "updating (${manager}):" "${update_packages[@]}"
+    print_step "Updating (${manager}):" "${update_packages[@]}"
     case "$kind" in
         apt)
             run_checked apt_command install --only-upgrade -y "${update_packages[@]}"
@@ -3383,9 +3499,9 @@ update_packages() {
             run_checked brew upgrade --cask "${update_packages[@]}"
             ;;
     esac
-    print_success "updated (${manager}):" "${update_packages[@]}"
+    print_success "Updated (${manager}):" "${update_packages[@]}"
     if [ "${#current_packages[@]}" -gt 0 ]; then
-        print_skip "not updated (${manager}):" "${current_packages[@]}"
+        print_skip "No changes (${manager}):" "${current_packages[@]}"
     fi
     return 0
 }
@@ -3415,9 +3531,9 @@ filter_batch_packages() {
 
     if [ "${#skipped_packages[@]}" -gt 0 ]; then
         if [ "$mode" = install ]; then
-            print_skip 'skipped:' "${skipped_packages[@]}"
+            print_skip "Skipped (${manager}, already installed):" "${skipped_packages[@]}"
         else
-            print_skip "not updated (${manager}, not installed):" "${skipped_packages[@]}"
+            print_skip "Skipped (${manager}, not installed):" "${skipped_packages[@]}"
         fi
     fi
 }
@@ -3426,6 +3542,7 @@ run_package_batch() {
     local kind=$1
     local manager
     local mode=$2
+    local status
     local tool_index
 
     shift 2
@@ -3434,8 +3551,10 @@ run_package_batch() {
     for tool_index in "$@"; do
         append_tool_packages "$tool_index"
     done
+    CURRENT_OPERATION="${mode} (${manager}): ${BATCH_PACKAGES[*]}"
     filter_batch_packages "$kind" "$mode"
     if [ "${#FILTERED_PACKAGES[@]}" -eq 0 ]; then
+        CURRENT_OPERATION=''
         [ "$mode" = update ] && return 1
         return 0
     fi
@@ -3446,10 +3565,14 @@ run_package_batch() {
     esac
     if [ "$mode" = update ]; then
         update_packages "$kind" "${FILTERED_PACKAGES[@]}"
-        return $?
+        status=$?
+        case "$status" in
+            0|1) CURRENT_OPERATION='' ;;
+        esac
+        return "$status"
     fi
 
-    print_step "installing (${manager}):" "${FILTERED_PACKAGES[@]}"
+    print_step "Installing (${manager}):" "${FILTERED_PACKAGES[@]}"
     case "$kind" in
         apt)
             run_checked apt_command install -y "${FILTERED_PACKAGES[@]}"
@@ -3464,7 +3587,8 @@ run_package_batch() {
             BREW_INSTALLED_CACHE_READY=0
             ;;
     esac
-    print_success "installed (${manager}):" "${FILTERED_PACKAGES[@]}"
+    print_success "Installed (${manager}):" "${FILTERED_PACKAGES[@]}"
+    CURRENT_OPERATION=''
 }
 
 run_custom_tool() {
@@ -3474,26 +3598,30 @@ run_custom_tool() {
     local status
 
     if ! tool_supports_action "$tool_index" "$MODE"; then
-        print_skip "skipped (${MODE} not supported): ${tool_label}"
+        print_skip "Skipped (${MODE} not supported): ${tool_label}"
         return 0
     fi
 
+    CURRENT_OPERATION=$tool_label
     tool_is_installed "$tool_index"
     status=$?
     case "$MODE:$status" in
         install:0)
-            print_skip "skipped: ${tool_label}"
+            print_skip "Skipped (already installed): ${tool_label}"
+            CURRENT_OPERATION=''
             return 0
             ;;
         install:1)
-            print_step "installing: ${tool_label}"
+            print_step "Installing: ${tool_label}"
             run_checked "${function_prefix}_install"
-            print_success "installed: ${tool_label}"
+            print_success "Installed: ${tool_label}"
+            CURRENT_OPERATION=''
             return 0
             ;;
         update:0) ;;
         update:1)
-            print_skip "not updated (not installed): ${tool_label}"
+            print_skip "Skipped (not installed): ${tool_label}"
+            CURRENT_OPERATION=''
             return 0
             ;;
         *)
@@ -3501,14 +3629,15 @@ run_custom_tool() {
             ;;
     esac
 
-    print_step "updating: ${tool_label}"
+    print_step "Updating: ${tool_label}"
     "${function_prefix}_update"
     status=$?
     case "$status" in
-        0) print_success "updated: ${tool_label}" ;;
-        1) print_skip "not updated: ${tool_label}" ;;
+        0) print_success "Updated: ${tool_label}" ;;
+        1) print_skip "No changes: ${tool_label}" ;;
         *) exit "$status" ;;
     esac
+    CURRENT_OPERATION=''
 }
 
 flush_package_batch() {

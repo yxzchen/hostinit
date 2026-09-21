@@ -23,7 +23,7 @@ _docker_configure_service() {
         *' docker '*) ;;
         *)
             run_as_root usermod -aG docker "$user"
-            printf '\n\033[1;31mACTION REQUIRED:\033[0m\n'
+            printf '\n\033[1;33mACTION REQUIRED:\033[0m\n'
             printf 'Sign out and sign in again before using Docker without sudo.\n'
             printf '\n'
             ;;

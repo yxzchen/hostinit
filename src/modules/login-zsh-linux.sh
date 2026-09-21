@@ -71,7 +71,7 @@ login-zsh_install() {
     status=$?
     [ "$status" -eq 0 ] || fatal "$status"
     run_as_root chsh -s "$allowed_shell" "$user"
-    printf '\n\033[1;31mACTION REQUIRED:\033[0m\n'
+    printf '\n\033[1;33mACTION REQUIRED:\033[0m\n'
     printf 'Sign out and sign in again to use the new login shell.\n'
     printf '\n'
 }

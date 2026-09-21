@@ -8,14 +8,14 @@ apt_command() {
 
 refresh_apt_metadata() {
     [ "$APT_METADATA_REFRESHED" -eq 0 ] || return 0
-    print_step 'refreshing:' 'apt metadata'
+    print_step 'Refreshing:' 'apt metadata'
     run_checked apt_command update
     APT_METADATA_REFRESHED=1
 }
 
 refresh_brew_metadata() {
     [ "$BREW_METADATA_REFRESHED" -eq 0 ] || return 0
-    print_step 'refreshing:' 'brew metadata'
+    print_step 'Refreshing:' 'brew metadata'
     run_checked brew update
     BREW_METADATA_REFRESHED=1
     export HOMEBREW_NO_AUTO_UPDATE=1
@@ -216,11 +216,11 @@ update_packages() {
         fi
     done
     if [ "${#update_packages[@]}" -eq 0 ]; then
-        print_skip "not updated (${manager}):" "${current_packages[@]}"
+        print_skip "No changes (${manager}):" "${current_packages[@]}"
         return 1
     fi
 
-    print_step "updating (${manager}):" "${update_packages[@]}"
+    print_step "Updating (${manager}):" "${update_packages[@]}"
     case "$kind" in
         apt)
             run_checked apt_command install --only-upgrade -y "${update_packages[@]}"
@@ -232,9 +232,9 @@ update_packages() {
             run_checked brew upgrade --cask "${update_packages[@]}"
             ;;
     esac
-    print_success "updated (${manager}):" "${update_packages[@]}"
+    print_success "Updated (${manager}):" "${update_packages[@]}"
     if [ "${#current_packages[@]}" -gt 0 ]; then
-        print_skip "not updated (${manager}):" "${current_packages[@]}"
+        print_skip "No changes (${manager}):" "${current_packages[@]}"
     fi
     return 0
 }
@@ -264,9 +264,9 @@ filter_batch_packages() {
 
     if [ "${#skipped_packages[@]}" -gt 0 ]; then
         if [ "$mode" = install ]; then
-            print_skip 'skipped:' "${skipped_packages[@]}"
+            print_skip "Skipped (${manager}, already installed):" "${skipped_packages[@]}"
         else
-            print_skip "not updated (${manager}, not installed):" "${skipped_packages[@]}"
+            print_skip "Skipped (${manager}, not installed):" "${skipped_packages[@]}"
         fi
     fi
 }
@@ -275,6 +275,7 @@ run_package_batch() {
     local kind=$1
     local manager
     local mode=$2
+    local status
     local tool_index
 
     shift 2
@@ -283,8 +284,10 @@ run_package_batch() {
     for tool_index in "$@"; do
         append_tool_packages "$tool_index"
     done
+    CURRENT_OPERATION="${mode} (${manager}): ${BATCH_PACKAGES[*]}"
     filter_batch_packages "$kind" "$mode"
     if [ "${#FILTERED_PACKAGES[@]}" -eq 0 ]; then
+        CURRENT_OPERATION=''
         [ "$mode" = update ] && return 1
         return 0
     fi
@@ -295,10 +298,14 @@ run_package_batch() {
     esac
     if [ "$mode" = update ]; then
         update_packages "$kind" "${FILTERED_PACKAGES[@]}"
-        return $?
+        status=$?
+        case "$status" in
+            0|1) CURRENT_OPERATION='' ;;
+        esac
+        return "$status"
     fi
 
-    print_step "installing (${manager}):" "${FILTERED_PACKAGES[@]}"
+    print_step "Installing (${manager}):" "${FILTERED_PACKAGES[@]}"
     case "$kind" in
         apt)
             run_checked apt_command install -y "${FILTERED_PACKAGES[@]}"
@@ -313,5 +320,6 @@ run_package_batch() {
             BREW_INSTALLED_CACHE_READY=0
             ;;
     esac
-    print_success "installed (${manager}):" "${FILTERED_PACKAGES[@]}"
+    print_success "Installed (${manager}):" "${FILTERED_PACKAGES[@]}"
+    CURRENT_OPERATION=''
 }

@@ -2,6 +2,7 @@ TUI_ACTIVE=0
 STTY_STATE=''
 ACTION=''
 MODE='install'
+CURRENT_OPERATION=''
 APT_METADATA_REFRESHED=0
 APT_INSTALLED_CACHE_READY=0
 APT_INSTALLED_PACKAGES=''
@@ -59,7 +60,11 @@ print_success() {
 }
 
 print_skip() {
-    _print_status '1;33' "$@"
+    _print_status '90' "$@"
+}
+
+print_failure() {
+    _print_status '1;31' "$@" >&2
 }
 
 _os_release_value() {
@@ -90,7 +95,17 @@ restore_terminal() {
     return "$status"
 }
 
-trap restore_terminal EXIT
+finish() {
+    local status=$?
+
+    restore_terminal
+    if [ "$status" -ne 0 ] && [ -n "$CURRENT_OPERATION" ]; then
+        print_failure "Failed: ${CURRENT_OPERATION} (exit ${status})"
+    fi
+    return "$status"
+}
+
+trap finish EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 trap 'exit 129' HUP
