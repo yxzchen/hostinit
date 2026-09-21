@@ -25,12 +25,12 @@ _codex_switch_select() {
         labels[${#labels[@]}]=$suffix
     done
     if [ "${#accounts[@]}" -eq 0 ]; then
-        printf 'No auth.json.<provider> account files found in %s.\n' "$codex_dir" >&2
+        FAILURE_REASON="No auth.json.<provider> account files found in ${codex_dir}"
         return 1
     fi
 
     if [ ! -t 0 ] || [ ! -t 1 ]; then
-        printf 'Account selection requires an interactive terminal.\n' >&2
+        FAILURE_REASON='Account selection requires an interactive terminal'
         return 1
     fi
     STTY_STATE=$(stty -g) || return 1
@@ -101,16 +101,16 @@ _codex_switch_account() {
     CODEX_SWITCH_CHANGED=0
     case "$suffix" in
         ''|*[!a-zA-Z0-9._-]*)
-            printf 'Invalid provider name: %s\n' "$suffix" >&2
+            FAILURE_REASON="Invalid provider name: ${suffix}"
             return 1
             ;;
     esac
     if [ ! -f "$codex_dir/auth.json.$suffix" ]; then
-        printf 'Missing account file: %s/auth.json.%s\n' "$codex_dir" "$suffix" >&2
+        FAILURE_REASON="Missing account file: ${codex_dir}/auth.json.${suffix}"
         return 1
     fi
     if [ -e "$codex_dir/auth.json" ] && [ ! -L "$codex_dir/auth.json" ]; then
-        printf 'Not a symlink; leaving unchanged: %s/auth.json\n' "$codex_dir" >&2
+        FAILURE_REASON="${codex_dir}/auth.json is not a symlink; left unchanged"
         return 1
     fi
 
@@ -118,7 +118,7 @@ _codex_switch_account() {
     # Write through config.toml so existing links and file permissions survive.
     if ! cp "$codex_dir/config.toml" "$work_dir/original" ||
         ! _codex_switch_render_config "$suffix" "$work_dir/original" "$work_dir/updated"; then
-        printf 'Could not update model_provider in %s/config.toml.\n' "$codex_dir" >&2
+        FAILURE_REASON="Could not update model_provider in ${codex_dir}/config.toml"
         status=1
     elif [ "$codex_dir/auth.json" -ef "$codex_dir/auth.json.$suffix" ] &&
         cmp -s "$work_dir/original" "$work_dir/updated"; then
@@ -127,6 +127,7 @@ _codex_switch_account() {
     elif ! cat "$work_dir/updated" > "$codex_dir/config.toml" ||
         ! ln -sfn "auth.json.$suffix" "$codex_dir/auth.json"; then
         cat "$work_dir/original" > "$codex_dir/config.toml"
+        FAILURE_REASON="Could not switch the account in ${codex_dir}"
         status=1
     else
         CODEX_SWITCH_CHANGED=1
@@ -152,13 +153,14 @@ _codex_switch_stop() {
                 if kill -TERM "$pid" 2>/dev/null; then
                     count=$((count + 1))
                 elif kill -0 "$pid" 2>/dev/null; then
-                    printf 'Could not stop Codex process %s.\n' "$pid" >&2
+                    print_info "Could not stop Codex process ${pid}"
+                    FAILURE_REASON='Account switched, but some Codex processes could not be stopped'
                     status=1
                 fi
                 ;;
         esac
     done <<<"$processes"
-    printf 'Sent termination requests to %s Codex processes.\n' "$count"
+    print_info "Sent termination requests to ${count} Codex processes"
     return "$status"
 }
 
@@ -168,14 +170,20 @@ codex-switch_install() {
     local CODEX_SWITCH_SELECTION=''
     local CODEX_SWITCH_CHANGED=0
 
+    print_step 'Selecting Codex account'
     _codex_switch_select "$codex_dir" || return 1
-    [ -n "$CODEX_SWITCH_SELECTION" ] || return 0
-
-    _codex_switch_account "$codex_dir" "$CODEX_SWITCH_SELECTION" || return 1
-    if [ "$CODEX_SWITCH_CHANGED" -eq 0 ]; then
-        printf 'Codex account %s is already current.\n' "$CODEX_SWITCH_SELECTION"
+    if [ -z "$CODEX_SWITCH_SELECTION" ]; then
+        set_operation_result skipped 'canceled by user'
         return 0
     fi
-    printf 'Switched Codex account to %s.\n' "$CODEX_SWITCH_SELECTION"
+
+    print_step 'Updating account configuration'
+    _codex_switch_account "$codex_dir" "$CODEX_SWITCH_SELECTION" || return 1
+    if [ "$CODEX_SWITCH_CHANGED" -eq 0 ]; then
+        set_operation_result unchanged "account ${CODEX_SWITCH_SELECTION} is already current"
+        return 0
+    fi
+    print_info "Switched Codex account to ${CODEX_SWITCH_SELECTION}"
+    print_step 'Stopping Codex processes to apply the account change'
     _codex_switch_stop
 }

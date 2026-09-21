@@ -2,19 +2,20 @@ main() {
     local status
 
     if [ "$#" -ne 0 ]; then
-        printf 'hostinit.sh does not accept arguments\n' >&2
-        return 2
+        fatal 2 'hostinit.sh does not accept arguments'
     fi
     if ! detect_platform; then
-        printf 'unsupported platform\n' >&2
-        return 1
+        fatal 1 'Unsupported platform'
     fi
 
     configure_tools
     load_custom_modules
     run_tui
     status=$?
-    [ "$status" -eq 0 ] || return "$status"
+    if [ "$status" -ne 0 ]; then
+        restore_terminal
+        fatal "$status" "${FAILURE_REASON:-Could not read the interactive selection}"
+    fi
     [ "$ACTION" = 'execute' ] || return 0
     restore_terminal
     execute_selected

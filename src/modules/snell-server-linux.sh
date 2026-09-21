@@ -6,7 +6,7 @@ snell-server_is_installed() {
         [ -f /etc/systemd/system/snell.service ]
 }
 
-snell-server_install() (
+_snell_server_install_files() (
     local arch
     local config_action=preserved
     local psk
@@ -19,19 +19,16 @@ snell-server_install() (
         x86_64|amd64) arch=amd64 ;;
         aarch64|arm64) arch=aarch64 ;;
         *)
-            printf 'Snell Server supports only amd64 and aarch64 (detected: %s)\n' "$arch" >&2
-            fatal 1
+            fatal 1 "Snell Server supports only amd64 and aarch64 (detected: ${arch})"
             ;;
     esac
     if ! command -v systemctl >/dev/null 2>&1; then
-        printf 'Snell Server requires systemd\n' >&2
-        fatal 1
+        fatal 1 'Snell Server requires systemd'
     fi
 
     for dependency in curl unzip tr head mktemp install cat rm; do
         if ! command -v "$dependency" >/dev/null 2>&1; then
-            printf 'Snell Server requires %s; install it before continuing\n' "$dependency" >&2
-            fatal 1
+            fatal 1 "Snell Server requires ${dependency}; install it before continuing"
         fi
     done
 
@@ -40,6 +37,7 @@ snell-server_install() (
     [ "$status" -eq 0 ] || fatal "$status"
     trap 'rm -rf "$temp_dir"' EXIT
 
+    print_step 'Downloading Snell Server'
     run_checked curl --fail --show-error --silent --location \
         --connect-timeout 10 --retry 3 --proto '=https' --tlsv1.2 \
         "https://dl.nssurge.com/snell/snell-server-v5.0.1-linux-${arch}.zip" \
@@ -77,16 +75,20 @@ snell-server_install() (
         '' \
         '[Install]' \
         'WantedBy=multi-user.target' >"$temp_dir/snell.service" || fatal $?
+    print_step 'Installing Snell Server files and registering the service'
     run_as_root install -d -m 0755 /usr/local/bin
     run_as_root install -m 0755 "$temp_dir/snell-server" /usr/local/bin/snell-server
     run_as_root install -m 0644 "$temp_dir/snell.service" \
         /etc/systemd/system/snell.service
     run_as_root systemctl daemon-reload
     run_as_root systemctl enable snell.service
-    printf '\nSnell Server files:\n'
-    printf '  /usr/local/bin/snell-server (installed)\n'
-    printf '  /etc/systemd/system/snell.service (installed)\n'
-    printf '  /etc/snell/snell.conf (%s)\n' "$config_action"
-    printf '\nAutostart enabled. To start the service manually:\n'
-    printf '  sudo systemctl start snell.service\n\n'
+    print_info 'Binary: /usr/local/bin/snell-server'
+    print_info 'Service: /etc/systemd/system/snell.service (autostart enabled)'
+    print_info "Configuration: /etc/snell/snell.conf (${config_action})"
 )
+
+snell-server_install() {
+    print_step 'Installing Snell Server'
+    _snell_server_install_files || return $?
+    print_action_required $'Review /etc/snell/snell.conf, then run:\n  sudo systemctl start snell.service'
+}

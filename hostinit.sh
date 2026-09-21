@@ -6,136 +6,136 @@ TOOL_COUNT=50
 
 TOOL_IDS[0]=basics/ca-certificates
 TOOL_NAMES[0]=ca-certificates
-TOOL_LABELS[0]='basics / ca-certificates'
+TOOL_LABELS[0]=ca-certificates
 TOOL_IDS[1]=basics/gnupg
 TOOL_NAMES[1]=gnupg
-TOOL_LABELS[1]='basics / gnupg'
+TOOL_LABELS[1]=gnupg
 TOOL_IDS[2]=basics/locales
 TOOL_NAMES[2]=locales
-TOOL_LABELS[2]='basics / locales'
+TOOL_LABELS[2]=locales
 TOOL_IDS[3]=basics/curl
 TOOL_NAMES[3]=curl
-TOOL_LABELS[3]='basics / curl'
+TOOL_LABELS[3]=curl
 TOOL_IDS[4]=basics/wget
 TOOL_NAMES[4]=wget
-TOOL_LABELS[4]='basics / wget'
+TOOL_LABELS[4]=wget
 TOOL_IDS[5]=basics/git
 TOOL_NAMES[5]=git
-TOOL_LABELS[5]='basics / git'
+TOOL_LABELS[5]=git
 TOOL_IDS[6]=basics/vim
 TOOL_NAMES[6]=vim
-TOOL_LABELS[6]='basics / vim'
+TOOL_LABELS[6]=vim
 TOOL_IDS[7]=basics/rsync
 TOOL_NAMES[7]=rsync
-TOOL_LABELS[7]='basics / rsync'
+TOOL_LABELS[7]=rsync
 TOOL_IDS[8]=basics/zip
 TOOL_NAMES[8]=zip
-TOOL_LABELS[8]='basics / zip'
+TOOL_LABELS[8]=zip
 TOOL_IDS[9]=basics/unzip
 TOOL_NAMES[9]=unzip
-TOOL_LABELS[9]='basics / unzip'
+TOOL_LABELS[9]=unzip
 TOOL_IDS[10]=basics/build-essential
 TOOL_NAMES[10]=build-essential
-TOOL_LABELS[10]='basics / build-essential'
+TOOL_LABELS[10]=build-essential
 TOOL_IDS[11]=shell/zsh
 TOOL_NAMES[11]=zsh
-TOOL_LABELS[11]='shell / zsh'
+TOOL_LABELS[11]=zsh
 TOOL_IDS[12]=shell/login-zsh
 TOOL_NAMES[12]=login-zsh
-TOOL_LABELS[12]='shell / login-zsh'
+TOOL_LABELS[12]=login-zsh
 TOOL_IDS[13]=shell/zimfw
 TOOL_NAMES[13]=zimfw
-TOOL_LABELS[13]='shell / zimfw'
+TOOL_LABELS[13]=zimfw
 TOOL_IDS[14]=conf/locale-en-us
 TOOL_NAMES[14]=locale-en-us
-TOOL_LABELS[14]='conf / locale-en-us'
+TOOL_LABELS[14]=locale-en-us
 TOOL_IDS[15]=conf/dotfiles
 TOOL_NAMES[15]=dotfiles
-TOOL_LABELS[15]='conf / dotfiles'
+TOOL_LABELS[15]=dotfiles
 TOOL_IDS[16]=brew
 TOOL_NAMES[16]=brew
 TOOL_LABELS[16]=brew
 TOOL_IDS[17]=tools/rg
 TOOL_NAMES[17]=rg
-TOOL_LABELS[17]='tools / rg'
+TOOL_LABELS[17]=rg
 TOOL_IDS[18]=tools/jq
 TOOL_NAMES[18]=jq
-TOOL_LABELS[18]='tools / jq'
+TOOL_LABELS[18]=jq
 TOOL_IDS[19]=tools/tree
 TOOL_NAMES[19]=tree
-TOOL_LABELS[19]='tools / tree'
+TOOL_LABELS[19]=tree
 TOOL_IDS[20]=tools/htop
 TOOL_NAMES[20]=htop
-TOOL_LABELS[20]='tools / htop'
+TOOL_LABELS[20]=htop
 TOOL_IDS[21]=tools/bat
 TOOL_NAMES[21]=bat
-TOOL_LABELS[21]='tools / bat'
+TOOL_LABELS[21]=bat
 TOOL_IDS[22]=tools/fd
 TOOL_NAMES[22]=fd
-TOOL_LABELS[22]='tools / fd'
+TOOL_LABELS[22]=fd
 TOOL_IDS[23]=tools/fzf
 TOOL_NAMES[23]=fzf
-TOOL_LABELS[23]='tools / fzf'
+TOOL_LABELS[23]=fzf
 TOOL_IDS[24]=tools/exiftool
 TOOL_NAMES[24]=exiftool
-TOOL_LABELS[24]='tools / exiftool'
+TOOL_LABELS[24]=exiftool
 TOOL_IDS[25]=tools/yazi
 TOOL_NAMES[25]=yazi
-TOOL_LABELS[25]='tools / yazi'
+TOOL_LABELS[25]=yazi
 TOOL_IDS[26]=tools/ncdu
 TOOL_NAMES[26]=ncdu
-TOOL_LABELS[26]='tools / ncdu'
+TOOL_LABELS[26]=ncdu
 TOOL_IDS[27]=network/mtr
 TOOL_NAMES[27]=mtr
-TOOL_LABELS[27]='network / mtr'
+TOOL_LABELS[27]=mtr
 TOOL_IDS[28]=network/tcpdump
 TOOL_NAMES[28]=tcpdump
-TOOL_LABELS[28]='network / tcpdump'
+TOOL_LABELS[28]=tcpdump
 TOOL_IDS[29]=network/nmap
 TOOL_NAMES[29]=nmap
-TOOL_LABELS[29]='network / nmap'
+TOOL_LABELS[29]=nmap
 TOOL_IDS[30]=network/nc
 TOOL_NAMES[30]=nc
-TOOL_LABELS[30]='network / nc'
+TOOL_LABELS[30]=nc
 TOOL_IDS[31]=network/ip
 TOOL_NAMES[31]=ip
-TOOL_LABELS[31]='network / ip'
+TOOL_LABELS[31]=ip
 TOOL_IDS[32]=network/ethtool
 TOOL_NAMES[32]=ethtool
-TOOL_LABELS[32]='network / ethtool'
+TOOL_LABELS[32]=ethtool
 TOOL_IDS[33]=monitoring/lsof
 TOOL_NAMES[33]=lsof
-TOOL_LABELS[33]='monitoring / lsof'
+TOOL_LABELS[33]=lsof
 TOOL_IDS[34]=monitoring/strace
 TOOL_NAMES[34]=strace
-TOOL_LABELS[34]='monitoring / strace'
+TOOL_LABELS[34]=strace
 TOOL_IDS[35]=monitoring/perf
 TOOL_NAMES[35]=perf
-TOOL_LABELS[35]='monitoring / perf'
+TOOL_LABELS[35]=perf
 TOOL_IDS[36]=cpp/gdb
 TOOL_NAMES[36]=gdb
-TOOL_LABELS[36]='cpp / gdb'
+TOOL_LABELS[36]=gdb
 TOOL_IDS[37]=cpp/cmake
 TOOL_NAMES[37]=cmake
-TOOL_LABELS[37]='cpp / cmake'
+TOOL_LABELS[37]=cmake
 TOOL_IDS[38]=cpp/pkg-config
 TOOL_NAMES[38]=pkg-config
-TOOL_LABELS[38]='cpp / pkg-config'
+TOOL_LABELS[38]=pkg-config
 TOOL_IDS[39]=python/uv
 TOOL_NAMES[39]=uv
-TOOL_LABELS[39]='python / uv'
+TOOL_LABELS[39]=uv
 TOOL_IDS[40]=frp/frpc
 TOOL_NAMES[40]=frpc
-TOOL_LABELS[40]='frp / frpc'
+TOOL_LABELS[40]=frpc
 TOOL_IDS[41]=frp/frpc-service
 TOOL_NAMES[41]=frpc-service
-TOOL_LABELS[41]='frp / frpc-service'
+TOOL_LABELS[41]=frpc-service
 TOOL_IDS[42]=frp/frps
 TOOL_NAMES[42]=frps
-TOOL_LABELS[42]='frp / frps'
+TOOL_LABELS[42]=frps
 TOOL_IDS[43]=frp/frps-service
 TOOL_NAMES[43]=frps-service
-TOOL_LABELS[43]='frp / frps-service'
+TOOL_LABELS[43]=frps-service
 TOOL_IDS[44]=lima
 TOOL_NAMES[44]=lima
 TOOL_LABELS[44]=lima
@@ -150,10 +150,10 @@ TOOL_NAMES[47]=snell-server
 TOOL_LABELS[47]=snell-server
 TOOL_IDS[48]=actions/create-user
 TOOL_NAMES[48]=create-user
-TOOL_LABELS[48]='actions / create-user'
+TOOL_LABELS[48]=create-user
 TOOL_IDS[49]=actions/codex-switch
 TOOL_NAMES[49]=codex-switch
-TOOL_LABELS[49]='actions / codex-switch'
+TOOL_LABELS[49]=codex-switch
 
 NODE_COUNT=60
 
@@ -1146,19 +1146,18 @@ login-zsh_install() {
     local status
     local user
 
+    print_step 'Changing the login shell to Zsh'
     shell_path=$(_login_zsh_find)
     status=$?
-    [ "$status" -eq 0 ] || fatal "$status"
+    [ "$status" -eq 0 ] || fatal "$status" 'Install Zsh before changing the login shell'
     allowed_shell=$(_login_zsh_allowed "$shell_path")
     status=$?
-    [ "$status" -eq 0 ] || fatal "$status"
+    [ "$status" -eq 0 ] || fatal "$status" "Zsh is not listed in /etc/shells: ${shell_path}"
     user=$(id -un)
     status=$?
     [ "$status" -eq 0 ] || fatal "$status"
     run_as_root chsh -s "$allowed_shell" "$user"
-    printf '\n\033[1;33mACTION REQUIRED:\033[0m\n'
-    printf 'Sign out and sign in again to use the new login shell.\n'
-    printf '\n'
+    print_action_required 'Sign out and sign in again to use the new login shell'
 }
 }
 
@@ -1173,6 +1172,7 @@ _zimfw_run_action() {
     local zim_home=${ZIM_HOME:-$HOME/.zim}
     local zimrc=${ZIM_CONFIG_FILE:-$HOME/.zimrc}
 
+    print_step "Applying Zimfw action: ${action}"
     run_checked env ZIM_HOME="$zim_home" ZIM_CONFIG_FILE="$zimrc" \
         zsh -c 'source "$1" "$2" -q' -- "$zim_home/zimfw.zsh" "$action"
 }
@@ -1193,13 +1193,14 @@ _zimfw_check_updates() {
     local zim_home=${ZIM_HOME:-$HOME/.zim}
     local zimrc=${ZIM_CONFIG_FILE:-$HOME/.zimrc}
 
+    print_step 'Checking Zimfw and module updates'
     ZIMFW_MODULE_UPDATE_NEEDED=0
     ZIMFW_UPGRADE_NEEDED=0
     version_output=$(env ZIM_HOME="$zim_home" ZIM_CONFIG_FILE="$zimrc" \
         zsh -c 'source "$1" "$2" -v' \
         -- "$zim_home/zimfw.zsh" check-version 2>&1)
     status=$?
-    [ "$status" -eq 0 ] || { printf '%s\n' "$version_output" >&2; fatal "$status"; }
+    [ "$status" -eq 0 ] || { print_info "$version_output"; fatal "$status" 'Could not check the Zimfw version'; }
     case "$version_output" in
         *'Latest zimfw version is '*) ZIMFW_UPGRADE_NEEDED=1 ;;
     esac
@@ -1208,7 +1209,7 @@ _zimfw_check_updates() {
         zsh -c 'source "$1" "$2" -v' \
         -- "$zim_home/zimfw.zsh" check 2>&1)
     status=$?
-    [ "$status" -eq 0 ] || { printf '%s\n' "$module_output" >&2; fatal "$status"; }
+    [ "$status" -eq 0 ] || { print_info "$module_output"; fatal "$status" 'Could not check Zimfw modules'; }
     case "$module_output" in
         *': Update available'*) ZIMFW_MODULE_UPDATE_NEEDED=1 ;;
     esac
@@ -1231,10 +1232,10 @@ zimfw_install() {
         return 0
     fi
     if [ -e "$zim_home" ]; then
-        printf '%s exists but is not a complete Zimfw installation\n' "$zim_home" >&2
-        fatal 1
+        fatal 1 "${zim_home} exists but is not a complete Zimfw installation"
     fi
 
+    print_step 'Downloading the Zimfw installer'
     temp_dir=$(mktemp -d "${TMPDIR:-/tmp}/hostinit-zimfw.XXXXXX")
     status=$?
     [ "$status" -eq 0 ] || fatal "$status"
@@ -1248,6 +1249,7 @@ zimfw_install() {
     zsh_bin=$(command -v zsh)
     status=$?
     [ "$status" -eq 0 ] || { rm -rf "$temp_dir"; fatal "$status"; }
+    print_step 'Installing Zimfw'
     env SHELL="$zsh_bin" ZIM_HOME="$zim_home" ZIM_CONFIG_FILE="$zimrc" \
         zsh "$installer"
     status=$?
@@ -1293,6 +1295,7 @@ locale-en-us_is_installed() {
 }
 
 locale-en-us_install() {
+    print_step 'Configuring the en_US.UTF-8 locale'
     if ! _locale_en_us_generated; then
         if grep -Eq '^[[:space:]]*en_US\.UTF-8[[:space:]]+UTF-8[[:space:]]*$' \
             /etc/locale.gen; then
@@ -1303,14 +1306,14 @@ locale-en-us_install() {
                 's/^[[:space:]]*#[[:space:]]*(en_US\.UTF-8[[:space:]]+UTF-8)[[:space:]]*$/\1/' \
                 /etc/locale.gen
         else
-            fatal 1
+            fatal 1 'No en_US.UTF-8 entry found in /etc/locale.gen'
         fi
         run_as_root locale-gen
-        _locale_en_us_generated || fatal 1
+        _locale_en_us_generated || fatal 1 'en_US.UTF-8 is still unavailable after locale-gen'
     fi
     if ! _locale_en_us_default; then
         run_as_root env LC_ALL=C LANG=C update-locale LANG=en_US.UTF-8
-        _locale_en_us_default || fatal 1
+        _locale_en_us_default || fatal 1 'Could not set en_US.UTF-8 as the default locale'
     fi
 }
 }
@@ -1367,6 +1370,7 @@ dotfiles_install() {
     local temp_dir
     local zim_home=${ZIM_HOME:-$HOME/.zim}
 
+    print_step 'Downloading shell and Git configuration files'
     _dotfiles_set_expected_files
     temp_dir=$(mktemp -d "${TMPDIR:-/tmp}/hostinit-dotfiles.XXXXXX")
     status=$?
@@ -1389,6 +1393,7 @@ dotfiles_install() {
             fatal "$status"
         fi
     done
+    print_step 'Installing shell and Git configuration files'
     for filename in "${DOTFILES_EXPECTED_FILES[@]}"; do
         install -m 0644 "$source_dir/$filename" "$HOME/$filename"
         status=$?
@@ -1449,6 +1454,7 @@ _brew_configure_shellenv() {
     local shellenv
     local status
 
+    print_step 'Configuring the Homebrew shell environment'
     line=$(_brew_shellenv_line "$brew_bin")
     if [ ! -f "$HOME/.zprofile" ] || ! grep -Fqx "$line" "$HOME/.zprofile"; then
         printf '\n%s\n' "$line" >>"$HOME/.zprofile"
@@ -1486,6 +1492,7 @@ brew_install() {
         return 0
     fi
 
+    print_step 'Downloading the Homebrew installer'
     temp_dir=$(mktemp -d "${TMPDIR:-/tmp}/hostinit-brew.XXXXXX")
     status=$?
     [ "$status" -eq 0 ] || fatal "$status"
@@ -1496,6 +1503,7 @@ brew_install() {
         -o "$installer"
     status=$?
     [ "$status" -eq 0 ] || { rm -rf "$temp_dir"; fatal "$status"; }
+    print_step 'Installing Homebrew'
     env NONINTERACTIVE=1 /bin/bash "$installer"
     status=$?
     rm -rf "$temp_dir"
@@ -1512,12 +1520,13 @@ brew_update() {
     local output
     local status
 
+    print_step 'Updating Homebrew metadata'
     brew_bin=$(_brew_find)
     status=$?
     [ "$status" -eq 0 ] || fatal "$status"
     output=$("$brew_bin" update 2>&1)
     status=$?
-    printf '%s\n' "$output"
+    print_info "$output"
     [ "$status" -eq 0 ] || fatal "$status"
     BREW_METADATA_REFRESHED=1
     export HOMEBREW_NO_AUTO_UPDATE=1
@@ -1581,10 +1590,7 @@ _frp_systemd_create_config() {
 _frp_systemd_print_next_step() {
     local component=$1
 
-    printf '\n\033[1;33mACTION REQUIRED:\033[0m\n'
-    printf 'Edit /etc/frp/%s.toml, then start the registered service:\n' "$component"
-    printf '  sudo systemctl start %s.service\n' "$component"
-    printf '\n'
+    print_action_required "Edit /etc/frp/${component}.toml, then run:"$'\n'"  sudo systemctl start ${component}.service"
 }
 
 _frp_systemd_register() {
@@ -1596,9 +1602,10 @@ _frp_systemd_register() {
     local temp_dir
     local unit
 
+    print_step "Registering the ${component} systemd service"
     binary=$(command -v "$component")
     status=$?
-    [ "$status" -eq 0 ] || fatal "$status"
+    [ "$status" -eq 0 ] || fatal "$status" "Install ${component} before registering its service"
     case "$component" in
         frpc) description='FRP client' ;;
         frps) description='FRP server' ;;
@@ -1665,6 +1672,7 @@ _docker_configure_service() {
     local user
     local user_groups
 
+    print_step 'Configuring the Docker service and user access'
     run_as_root systemctl enable docker
     run_as_root systemctl start docker
     user=$(id -un)
@@ -1674,9 +1682,7 @@ _docker_configure_service() {
         *' docker '*) ;;
         *)
             run_as_root usermod -aG docker "$user"
-            printf '\n\033[1;33mACTION REQUIRED:\033[0m\n'
-            printf 'Sign out and sign in again before using Docker without sudo.\n'
-            printf '\n'
+            print_action_required 'Sign out and sign in again before using Docker without sudo'
             ;;
     esac
 }
@@ -1691,8 +1697,9 @@ _docker_setup_repository() {
     local status
     local temp_dir
 
-    arch=$(dpkg --print-architecture)
-    codename=$(_docker_codename)
+    print_step 'Configuring the Docker package repository'
+    arch=$(dpkg --print-architecture) || fatal $? 'Could not determine the package architecture'
+    codename=$(_docker_codename) || fatal $? 'Could not determine the distribution codename'
     temp_dir=$(mktemp -d "${TMPDIR:-/tmp}/hostinit-docker.XXXXXX")
     status=$?
     [ "$status" -eq 0 ] || fatal "$status"
@@ -1713,7 +1720,7 @@ _docker_setup_repository() {
     [ "$status" -eq 0 ] || { rm -rf "$temp_dir"; fatal "$status"; }
     if [ "$actual_fingerprint" != 9DC858229FC7DD38854AE2D88D81803C0EBFCD88 ]; then
         rm -rf "$temp_dir"
-        fatal 1
+        fatal 1 'The Docker repository signing key has an unexpected fingerprint'
     fi
     printf 'deb [arch=%s signed-by=/etc/apt/keyrings/docker.asc] ' "$arch" >"$source"
     printf 'https://download.docker.com/linux/%s %s stable\n' \
@@ -1740,6 +1747,7 @@ _docker_install_missing_components() {
         apt-cache policy "$package" | awk '$1 == "Candidate:" && $2 != "(none)" {found = 1} END {exit !found}'
         [ "$?" -eq 0 ] || fatal 1
     done
+    print_step 'Installing Docker components'
     run_as_root apt-get install -y --no-install-recommends "${missing[@]}"
 }
 
@@ -1779,6 +1787,7 @@ docker_update() {
         fi
     done
     [ "$update_available" -eq 1 ] || return 1
+    print_step 'Updating Docker components'
     before=$(dpkg-query -W -f='${binary:Package}=${Version}\n' \
         docker-ce docker-ce-cli containerd.io)
     status=$?
@@ -1802,6 +1811,7 @@ _warp_codename() {
 }
 
 _warp_configure() {
+    print_step 'Configuring the WARP proxy'
     if ! warp-cli --accept-tos registration show >/dev/null 2>&1; then
         run_checked warp-cli --accept-tos registration new
     fi
@@ -1817,6 +1827,7 @@ _warp_refresh_key() {
     local status
     local temp_dir
 
+    print_step 'Verifying the WARP repository signing key'
     temp_dir=$(mktemp -d "${TMPDIR:-/tmp}/hostinit-warp-key.XXXXXX")
     status=$?
     [ "$status" -eq 0 ] || fatal "$status"
@@ -1834,7 +1845,7 @@ _warp_refresh_key() {
     [ "$status" -eq 0 ] || { rm -rf "$temp_dir"; fatal "$status"; }
     if [ "$actual_fingerprint" != C068A2B5771775193CBE1F2F6E2DD2174FA1C3BA ]; then
         rm -rf "$temp_dir"
-        fatal 1
+        fatal 1 'The WARP repository signing key has an unexpected fingerprint'
     fi
     gpg --batch --yes --dearmor --output "$dearmored" "$key"
     status=$?
@@ -1851,12 +1862,13 @@ _warp_install_package() {
     local status
     local temp_dir
 
-    arch=$(dpkg --print-architecture)
+    print_step 'Configuring the WARP package repository'
+    arch=$(dpkg --print-architecture) || fatal $? 'Could not determine the package architecture'
     case "$arch" in
         amd64|arm64) ;;
-        *) fatal 1 ;;
+        *) fatal 1 "WARP does not support this architecture: ${arch}" ;;
     esac
-    codename=$(_warp_codename)
+    codename=$(_warp_codename) || fatal $? 'Could not determine the distribution codename'
     _warp_refresh_key
 
     temp_dir=$(mktemp -d "${TMPDIR:-/tmp}/hostinit-warp-source.XXXXXX")
@@ -1870,6 +1882,7 @@ _warp_install_package() {
     run_as_root install -m 0644 "$source" /etc/apt/sources.list.d/cloudflare-client.list
     rm -rf "$temp_dir"
     run_as_root apt-get update
+    print_step 'Installing the WARP package'
     run_as_root apt-get install -y cloudflare-warp
 }
 
@@ -1897,6 +1910,7 @@ warp_update() {
     before=$(dpkg-query -W -f='${Version}' cloudflare-warp)
     status=$?
     [ "$status" -eq 0 ] || fatal "$status"
+    print_step 'Updating the WARP package'
     run_as_root apt-get install --only-upgrade -y cloudflare-warp
     after=$(dpkg-query -W -f='${Version}' cloudflare-warp)
     status=$?
@@ -1917,7 +1931,7 @@ snell-server_is_installed() {
         [ -f /etc/systemd/system/snell.service ]
 }
 
-snell-server_install() (
+_snell_server_install_files() (
     local arch
     local config_action=preserved
     local psk
@@ -1930,19 +1944,16 @@ snell-server_install() (
         x86_64|amd64) arch=amd64 ;;
         aarch64|arm64) arch=aarch64 ;;
         *)
-            printf 'Snell Server supports only amd64 and aarch64 (detected: %s)\n' "$arch" >&2
-            fatal 1
+            fatal 1 "Snell Server supports only amd64 and aarch64 (detected: ${arch})"
             ;;
     esac
     if ! command -v systemctl >/dev/null 2>&1; then
-        printf 'Snell Server requires systemd\n' >&2
-        fatal 1
+        fatal 1 'Snell Server requires systemd'
     fi
 
     for dependency in curl unzip tr head mktemp install cat rm; do
         if ! command -v "$dependency" >/dev/null 2>&1; then
-            printf 'Snell Server requires %s; install it before continuing\n' "$dependency" >&2
-            fatal 1
+            fatal 1 "Snell Server requires ${dependency}; install it before continuing"
         fi
     done
 
@@ -1951,6 +1962,7 @@ snell-server_install() (
     [ "$status" -eq 0 ] || fatal "$status"
     trap 'rm -rf "$temp_dir"' EXIT
 
+    print_step 'Downloading Snell Server'
     run_checked curl --fail --show-error --silent --location \
         --connect-timeout 10 --retry 3 --proto '=https' --tlsv1.2 \
         "https://dl.nssurge.com/snell/snell-server-v5.0.1-linux-${arch}.zip" \
@@ -1988,34 +2000,46 @@ snell-server_install() (
         '' \
         '[Install]' \
         'WantedBy=multi-user.target' >"$temp_dir/snell.service" || fatal $?
+    print_step 'Installing Snell Server files and registering the service'
     run_as_root install -d -m 0755 /usr/local/bin
     run_as_root install -m 0755 "$temp_dir/snell-server" /usr/local/bin/snell-server
     run_as_root install -m 0644 "$temp_dir/snell.service" \
         /etc/systemd/system/snell.service
     run_as_root systemctl daemon-reload
     run_as_root systemctl enable snell.service
-    printf '\nSnell Server files:\n'
-    printf '  /usr/local/bin/snell-server (installed)\n'
-    printf '  /etc/systemd/system/snell.service (installed)\n'
-    printf '  /etc/snell/snell.conf (%s)\n' "$config_action"
-    printf '\nAutostart enabled. To start the service manually:\n'
-    printf '  sudo systemctl start snell.service\n\n'
+    print_info 'Binary: /usr/local/bin/snell-server'
+    print_info 'Service: /etc/systemd/system/snell.service (autostart enabled)'
+    print_info "Configuration: /etc/snell/snell.conf (${config_action})"
 )
+
+snell-server_install() {
+    print_step 'Installing Snell Server'
+    _snell_server_install_files || return $?
+    print_action_required $'Review /etc/snell/snell.conf, then run:\n  sudo systemctl start snell.service'
+}
 }
 
 __load_custom_9() {
 #!/usr/bin/env bash
 
 create-user_install() {
+    local notice
+    local notice_dir
+    local status
     local username
+    local root_command=(bash)
 
     while :; do
-        printf 'New username: '
-        IFS= read -r username || return 1
+        print_prompt 'New username:'
+        if ! IFS= read -r username; then
+            printf '\n' >&2
+            set_operation_result skipped 'canceled before creating a user'
+            return 0
+        fi
         if [[ ! "$username" =~ ^[a-z_][a-z0-9_-]*$ ]] || [ "${#username}" -gt 32 ]; then
-            printf 'Use 1-32 lowercase letters, digits, underscores or hyphens; start with a letter or underscore.\n' >&2
+            print_info 'Use 1-32 lowercase letters, digits, underscores or hyphens; start with a letter or underscore'
         elif getent passwd "$username" >/dev/null; then
-            printf 'User %s already exists. Choose a new username.\n' "$username" >&2
+            print_info "User ${username} already exists. Choose a new username"
         else
             break
         fi
@@ -2026,14 +2050,23 @@ create-user_install() {
         run_as_root apt-get install -y sudo
     fi
 
-    run_as_root bash -s -- "$username" <<'CREATE_USER'
+    notice_dir=$(mktemp -d "${TMPDIR:-/tmp}/hostinit-user-notices.XXXXXX") || fatal $? 'Could not create a temporary directory for user setup'
+    : >"$notice_dir/actions"
+    [ "$EUID" -eq 0 ] || root_command=(sudo bash)
+    print_step "Creating user ${username} with passwordless sudo"
+    "${root_command[@]}" -s -- "$username" "$notice_dir/actions" <<'CREATE_USER'
 set -eu
 
 username=$1
+notice_file=$2
 destination="/etc/sudoers.d/90-hostinit-${username}"
 temporary=''
 created=0
 completed=0
+
+require_action() {
+    printf '%s\n' "$1" >>"$notice_file" || printf 'Action required:\n  %s\n' "$1" >&2
+}
 
 cleanup_create_user() {
     status=$?
@@ -2041,17 +2074,16 @@ cleanup_create_user() {
     if [ "$completed" -eq 0 ]; then
         if [ -n "$temporary" ] && [ "$temporary" -ef "$destination" ]; then
             if ! rm -f -- "$destination"; then
-                printf 'Could not remove sudoers file %s; remove it manually.\n' "$destination" >&2
+                require_action "Could not remove sudoers file ${destination}; remove it manually"
             fi
         fi
         if [ "$created" -eq 1 ]; then
             if userdel -r -- "$username"; then
                 created=0
-                printf 'User setup did not complete; removed user %s and its home directory.\n' "$username" >&2
+                printf 'Rollback: Removed user %s and its home directory.\n' "$username" >&2
             else
                 rollback_status=$?
-                printf 'Could not fully remove user %s (userdel exit %s); check the account and /home/%s manually.\n' \
-                    "$username" "$rollback_status" "$username" >&2
+                require_action "Could not fully remove user ${username} (userdel exit ${rollback_status}); check the account and /home/${username} manually"
             fi
         fi
     fi
@@ -2065,12 +2097,12 @@ trap 'exit 129' HUP
 
 # Recheck under root before changing any account or sudoers files.
 if getent passwd "$username" >/dev/null; then
-    printf 'User %s already exists.\n' "$username" >&2
+    printf 'Error: User %s already exists.\n' "$username" >&2
     exit 1
 fi
 if [ -e "$destination" ] || [ -L "$destination" ] ||
     [ -e "/home/$username" ] || [ -L "/home/$username" ]; then
-    printf 'A home directory or sudoers file for %s already exists.\n' "$username" >&2
+    printf 'Error: A home directory or sudoers file for %s already exists.\n' "$username" >&2
     exit 1
 fi
 
@@ -2085,7 +2117,7 @@ visudo -cf "$temporary"
 
 useradd --create-home --user-group --home-dir "/home/$username" --shell /bin/bash -- "$username"
 created=1
-printf 'Set the login password for %s (sudo will not ask for it):\n' "$username"
+printf 'Set the login password for %s (sudo will not ask for it):\n' "$username" >&2
 passwd "$username" </dev/tty
 
 # Publish atomically without replacing an existing rule.
@@ -2094,8 +2126,14 @@ visudo -c
 # Also catches systems whose sudoers configuration does not include sudoers.d.
 sudo -u "$username" -- sudo -n -- true
 completed=1
-printf 'Created %s with home directory /home/%s and passwordless sudo.\n' "$username" "$username"
 CREATE_USER
+    status=$?
+    while IFS= read -r notice; do
+        print_action_required "$notice"
+    done <"$notice_dir/actions"
+    rm -rf "$notice_dir"
+    [ "$status" -eq 0 ] || fatal "$status" "Could not finish creating user ${username} (exit ${status})"
+    print_info "Created ${username} with home directory /home/${username} and passwordless sudo"
 }
 }
 
@@ -2127,12 +2165,12 @@ _codex_switch_select() {
         labels[${#labels[@]}]=$suffix
     done
     if [ "${#accounts[@]}" -eq 0 ]; then
-        printf 'No auth.json.<provider> account files found in %s.\n' "$codex_dir" >&2
+        FAILURE_REASON="No auth.json.<provider> account files found in ${codex_dir}"
         return 1
     fi
 
     if [ ! -t 0 ] || [ ! -t 1 ]; then
-        printf 'Account selection requires an interactive terminal.\n' >&2
+        FAILURE_REASON='Account selection requires an interactive terminal'
         return 1
     fi
     STTY_STATE=$(stty -g) || return 1
@@ -2203,16 +2241,16 @@ _codex_switch_account() {
     CODEX_SWITCH_CHANGED=0
     case "$suffix" in
         ''|*[!a-zA-Z0-9._-]*)
-            printf 'Invalid provider name: %s\n' "$suffix" >&2
+            FAILURE_REASON="Invalid provider name: ${suffix}"
             return 1
             ;;
     esac
     if [ ! -f "$codex_dir/auth.json.$suffix" ]; then
-        printf 'Missing account file: %s/auth.json.%s\n' "$codex_dir" "$suffix" >&2
+        FAILURE_REASON="Missing account file: ${codex_dir}/auth.json.${suffix}"
         return 1
     fi
     if [ -e "$codex_dir/auth.json" ] && [ ! -L "$codex_dir/auth.json" ]; then
-        printf 'Not a symlink; leaving unchanged: %s/auth.json\n' "$codex_dir" >&2
+        FAILURE_REASON="${codex_dir}/auth.json is not a symlink; left unchanged"
         return 1
     fi
 
@@ -2220,7 +2258,7 @@ _codex_switch_account() {
     # Write through config.toml so existing links and file permissions survive.
     if ! cp "$codex_dir/config.toml" "$work_dir/original" ||
         ! _codex_switch_render_config "$suffix" "$work_dir/original" "$work_dir/updated"; then
-        printf 'Could not update model_provider in %s/config.toml.\n' "$codex_dir" >&2
+        FAILURE_REASON="Could not update model_provider in ${codex_dir}/config.toml"
         status=1
     elif [ "$codex_dir/auth.json" -ef "$codex_dir/auth.json.$suffix" ] &&
         cmp -s "$work_dir/original" "$work_dir/updated"; then
@@ -2229,6 +2267,7 @@ _codex_switch_account() {
     elif ! cat "$work_dir/updated" > "$codex_dir/config.toml" ||
         ! ln -sfn "auth.json.$suffix" "$codex_dir/auth.json"; then
         cat "$work_dir/original" > "$codex_dir/config.toml"
+        FAILURE_REASON="Could not switch the account in ${codex_dir}"
         status=1
     else
         CODEX_SWITCH_CHANGED=1
@@ -2254,13 +2293,14 @@ _codex_switch_stop() {
                 if kill -TERM "$pid" 2>/dev/null; then
                     count=$((count + 1))
                 elif kill -0 "$pid" 2>/dev/null; then
-                    printf 'Could not stop Codex process %s.\n' "$pid" >&2
+                    print_info "Could not stop Codex process ${pid}"
+                    FAILURE_REASON='Account switched, but some Codex processes could not be stopped'
                     status=1
                 fi
                 ;;
         esac
     done <<<"$processes"
-    printf 'Sent termination requests to %s Codex processes.\n' "$count"
+    print_info "Sent termination requests to ${count} Codex processes"
     return "$status"
 }
 
@@ -2270,15 +2310,21 @@ codex-switch_install() {
     local CODEX_SWITCH_SELECTION=''
     local CODEX_SWITCH_CHANGED=0
 
+    print_step 'Selecting Codex account'
     _codex_switch_select "$codex_dir" || return 1
-    [ -n "$CODEX_SWITCH_SELECTION" ] || return 0
-
-    _codex_switch_account "$codex_dir" "$CODEX_SWITCH_SELECTION" || return 1
-    if [ "$CODEX_SWITCH_CHANGED" -eq 0 ]; then
-        printf 'Codex account %s is already current.\n' "$CODEX_SWITCH_SELECTION"
+    if [ -z "$CODEX_SWITCH_SELECTION" ]; then
+        set_operation_result skipped 'canceled by user'
         return 0
     fi
-    printf 'Switched Codex account to %s.\n' "$CODEX_SWITCH_SELECTION"
+
+    print_step 'Updating account configuration'
+    _codex_switch_account "$codex_dir" "$CODEX_SWITCH_SELECTION" || return 1
+    if [ "$CODEX_SWITCH_CHANGED" -eq 0 ]; then
+        set_operation_result unchanged "account ${CODEX_SWITCH_SELECTION} is already current"
+        return 0
+    fi
+    print_info "Switched Codex account to ${CODEX_SWITCH_SELECTION}"
+    print_step 'Stopping Codex processes to apply the account change'
     _codex_switch_stop
 }
 }
@@ -2314,11 +2360,8 @@ _frp_brew_print_next_step() {
     prefix=$(brew --prefix)
     status=$?
     [ "$status" -eq 0 ] || fatal "$status"
-    printf '\n\033[1;33mACTION REQUIRED:\033[0m\n'
-    printf 'Edit %s/etc/frp/%s.toml, then start the Homebrew service:\n' \
-        "$prefix" "$component"
-    printf '  brew services start %s\n' "$component"
-    printf '\n'
+    print_action_required "Edit ${prefix}/etc/frp/${component}.toml, then run:"$'\n'"  brew services start ${component}"
+    set_operation_result skipped 'service requires manual configuration'
 }
 
 frpc-service_is_installed() {
@@ -2326,7 +2369,8 @@ frpc-service_is_installed() {
 }
 
 frpc-service_install() {
-    _frp_brew_service_ready frpc || fatal 1
+    print_step 'Checking the frpc service configuration'
+    _frp_brew_service_ready frpc || fatal 1 'Install frpc and its Homebrew configuration before setting up the service'
     _frp_brew_print_next_step frpc
 }
 
@@ -2335,7 +2379,8 @@ frps-service_is_installed() {
 }
 
 frps-service_install() {
-    _frp_brew_service_ready frps || fatal 1
+    print_step 'Checking the frps service configuration'
+    _frp_brew_service_ready frps || fatal 1 'Install frps and its Homebrew configuration before setting up the service'
     _frp_brew_print_next_step frps
 }
 }
@@ -2437,7 +2482,6 @@ TUI_ACTIVE=0
 STTY_STATE=''
 ACTION=''
 MODE='install'
-CURRENT_OPERATION=''
 APT_METADATA_REFRESHED=0
 APT_INSTALLED_CACHE_READY=0
 APT_INSTALLED_PACKAGES=''
@@ -2454,6 +2498,11 @@ fatal() {
             status=1
             ;;
     esac
+    FAILURE_REASON=${2:-"${CURRENT_STEP:-Operation failed} (exit ${status})"}
+    if [ "${REPORT_ACTIVE:-0}" -ne 1 ] || [ "$BASH_SUBSHELL" -ne "$REPORT_SUBSHELL" ]; then
+        restore_terminal
+        _output_line '1;31' "Error: ${FAILURE_REASON}"
+    fi
     exit "$status"
 }
 
@@ -2462,7 +2511,7 @@ run_checked() {
 
     "$@"
     status=$?
-    [ "$status" -eq 0 ] || fatal "$status"
+    [ "$status" -eq 0 ] || fatal "$status" "${FAILURE_REASON:-${CURRENT_STEP:-Command failed}: $1 (exit ${status})}"
 }
 
 run_as_root() {
@@ -2471,35 +2520,6 @@ run_as_root() {
     else
         run_checked sudo "$@"
     fi
-}
-
-_print_status() {
-    local color=$1
-    local item
-    local message=$2
-
-    shift 2
-    printf '\n\033[%sm==> %s' "$color" "$message"
-    for item in "$@"; do
-        printf ' %s' "$item"
-    done
-    printf '\033[0m\n'
-}
-
-print_step() {
-    _print_status '1;36' "$@"
-}
-
-print_success() {
-    _print_status '1;32' "$@"
-}
-
-print_skip() {
-    _print_status '90' "$@"
-}
-
-print_failure() {
-    _print_status '1;31' "$@" >&2
 }
 
 _os_release_value() {
@@ -2534,9 +2554,7 @@ finish() {
     local status=$?
 
     restore_terminal
-    if [ "$status" -ne 0 ] && [ -n "$CURRENT_OPERATION" ]; then
-        print_failure "Failed: ${CURRENT_OPERATION} (exit ${status})"
-    fi
+    finish_report "$status"
     return "$status"
 }
 
@@ -2544,6 +2562,310 @@ trap finish EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 trap 'exit 129' HUP
+
+# Status output goes to stderr; stdout remains available for returned data and
+# native command output. Only the executor records final results.
+REPORT_ACTIVE=0
+REPORT_SUBSHELL=0
+REPORT_TOTAL=0
+CURRENT_STEP=''
+FAILURE_REASON=''
+OPERATION_RESULT=''
+OPERATION_REASON=''
+REPORT_TOOLS=()
+CURRENT_TOOLS=()
+REPORT_RESULTS=()
+REPORT_POSITIONS=()
+ACTION_TOOL_INDEXES=()
+ACTION_MESSAGES=()
+
+read_output_width() {
+    local size=''
+    local columns=${COLUMNS:-80}
+
+    if [ -t 2 ]; then
+        size=$(stty size <&2 2>/dev/null) || size=''
+        [ -z "$size" ] || columns=${size#* }
+    fi
+    case "$columns" in
+        ''|*[!0-9]*|0) columns=80 ;;
+    esac
+    while [[ "$columns" == 0* ]] && [ "${#columns}" -gt 1 ]; do columns=${columns#0}; done
+    [ "$columns" -gt 0 ] || columns=80
+    OUTPUT_COLUMNS=$columns
+}
+
+# Wrap prose at spaces, preserving explicit line breaks. Unbroken paths and
+# indented command lines remain intact so copied commands keep their meaning.
+wrap_text_lines() {
+    local text=$1
+    local width=$2
+    local prefix=${3-}
+    local continuation=${4-$prefix}
+    local preserve_indented=${5:-1}
+    local line
+    local current_prefix
+    local available
+    local chunk
+    local emitted
+    local max_indent=$((width / 3))
+
+    prefix=${prefix:0:$max_indent}
+    continuation=${continuation:0:$max_indent}
+    WRAPPED_LINES=()
+    while IFS= read -r line || [ -n "$line" ]; do
+        current_prefix=$prefix
+        emitted=0
+        if [ "$preserve_indented" -eq 1 ] && [[ "$line" == '  '* ]]; then
+            WRAPPED_LINES[${#WRAPPED_LINES[@]}]="$current_prefix$line"
+            continue
+        fi
+        available=$((width - ${#current_prefix}))
+        while [ "${#line}" -gt "$available" ]; do
+            chunk=${line:0:$available}
+            if [[ "$chunk" == *' '* ]] && [ -n "${chunk% *}" ]; then
+                chunk=${chunk% *}
+            else
+                chunk=${line%% *}
+            fi
+            WRAPPED_LINES[${#WRAPPED_LINES[@]}]="$current_prefix$chunk"
+            emitted=1
+            line=${line:${#chunk}}
+            while [[ "$line" == ' '* ]]; do line=${line# }; done
+            current_prefix=$continuation
+            available=$((width - ${#current_prefix}))
+        done
+        if [ -n "$line" ] || [ "$emitted" -eq 0 ]; then
+            WRAPPED_LINES[${#WRAPPED_LINES[@]}]="$current_prefix$line"
+        fi
+    done <<<"$text"
+}
+
+_output_line() {
+    local color=$1
+    local message=$2
+    local prefix=${3-}
+    local continuation=${4-$prefix}
+    local line
+
+    read_output_width
+    wrap_text_lines "$message" "$OUTPUT_COLUMNS" "$prefix" "$continuation"
+    for line in "${WRAPPED_LINES[@]}"; do
+        if [ -t 2 ] && [ -z "${NO_COLOR+x}" ] && [ "${TERM:-}" != dumb ]; then
+            printf '\033[%sm%s\033[0m\n' "$color" "$line" >&2
+        else
+            printf '%s\n' "$line" >&2
+        fi
+    done
+}
+
+print_info() {
+    _output_line 0 "$1" '' '  '
+}
+
+print_step() {
+    CURRENT_STEP=$1
+    _output_line '1;36' "$CURRENT_STEP" '' '  '
+}
+
+print_prompt() {
+    local prefix=${2-}
+    local line
+    local index
+
+    read_output_width
+    wrap_text_lines "$1" "$((OUTPUT_COLUMNS > 1 ? OUTPUT_COLUMNS - 1 : 1))" "$prefix"
+    for ((index = 0; index < ${#WRAPPED_LINES[@]}; index++)); do
+        line=${WRAPPED_LINES[$index]}
+        if [ "$index" -eq $((${#WRAPPED_LINES[@]} - 1)) ]; then
+            printf '%s ' "$line" >&2
+        else
+            printf '%s\n' "$line" >&2
+        fi
+    done
+}
+
+_output_action_message() {
+    local line
+
+    while IFS= read -r line || [ -n "$line" ]; do
+        if [[ "$line" == '  '* ]]; then
+            _output_line '1;33' "$line"
+        else
+            _output_line '1;33' "$line" '  '
+        fi
+    done <<<"$1"
+}
+
+print_action_required() {
+    local index
+    local tool_index=${CURRENT_TOOLS[0]:--1}
+
+    if [ "$REPORT_ACTIVE" -ne 1 ] || [ "$BASH_SUBSHELL" -ne "$REPORT_SUBSHELL" ]; then
+        _output_line '1;33' 'Action required:'
+        _output_action_message "$1"
+        return 0
+    fi
+    for ((index = 0; index < ${#ACTION_MESSAGES[@]}; index++)); do
+        if [ "${ACTION_TOOL_INDEXES[$index]}" -eq "$tool_index" ] &&
+            [ "${ACTION_MESSAGES[$index]}" = "$1" ]; then
+            return 0
+        fi
+    done
+    ACTION_TOOL_INDEXES[${#ACTION_TOOL_INDEXES[@]}]=$tool_index
+    ACTION_MESSAGES[${#ACTION_MESSAGES[@]}]=$1
+}
+
+set_operation_result() {
+    case "$1" in
+        skipped|unchanged) ;;
+        *) fatal 2 "Invalid operation result: $1" ;;
+    esac
+    [ -n "$2" ] || fatal 2 'An operation result must include a reason'
+    OPERATION_RESULT=$1
+    OPERATION_REASON=$2
+}
+
+start_report() {
+    local index
+
+    REPORT_ACTIVE=1
+    REPORT_SUBSHELL=$BASH_SUBSHELL
+    REPORT_TOTAL=0
+    REPORT_TOOLS=()
+    CURRENT_TOOLS=()
+    REPORT_RESULTS=()
+    REPORT_POSITIONS=()
+    ACTION_TOOL_INDEXES=()
+    ACTION_MESSAGES=()
+    FAILURE_REASON=''
+    for ((index = 0; index < TOOL_COUNT; index++)); do
+        if [ "${TOOL_ENABLED[$index]}" -eq 1 ] && [ "${SELECTED_TOOLS[$index]}" -eq 1 ]; then
+            REPORT_TOTAL=$((REPORT_TOTAL + 1))
+            REPORT_TOOLS[${#REPORT_TOOLS[@]}]=$index
+            REPORT_RESULTS[$index]=pending
+            REPORT_POSITIONS[$index]=$REPORT_TOTAL
+        fi
+    done
+}
+
+begin_tools() {
+    local index
+    local first=$1
+    local last=$1
+    local labels=''
+    local heading
+    local position
+    local verb='Installing'
+
+    CURRENT_TOOLS=("$@")
+    CURRENT_STEP='Checking installation status'
+    FAILURE_REASON=''
+    OPERATION_RESULT=''
+    OPERATION_REASON=''
+    for index in "$@"; do
+        REPORT_RESULTS[$index]=running
+        labels="${labels}${labels:+, }${TOOL_LABELS[$index]}"
+        last=$index
+    done
+    position=${REPORT_POSITIONS[$first]}
+    [ "$first" -eq "$last" ] || position="${position}-${REPORT_POSITIONS[$last]}"
+    [ "$MODE" = update ] && verb='Updating'
+    printf '\n' >&2
+    heading="[${position}/${REPORT_TOTAL}] ${verb}: ${labels}"
+    read_output_width
+    if [ "$#" -gt 1 ] && [ "${#heading}" -gt "$OUTPUT_COLUMNS" ]; then
+        _output_line '1;36' "[${position}/${REPORT_TOTAL}] ${verb} $# items:" '' '  '
+        for index in "$@"; do
+            _output_line 0 "${TOOL_LABELS[$index]}" '  - ' '    '
+        done
+    else
+        _output_line '1;36' "$heading" '' '  '
+    fi
+}
+
+record_result() {
+    local tool_index=$1
+    local result=$2
+    local reason=${3:-}
+    local color
+    local label
+
+    case "$result" in
+        installed) label='Installed'; color='1;32' ;;
+        updated) label='Updated'; color='1;32' ;;
+        unchanged) label='No changes'; color=90 ;;
+        skipped) label='Skipped'; color=90 ;;
+        failed) label='Failed'; color='1;31' ;;
+        *) fatal 2 "Invalid final result: $result" ;;
+    esac
+    REPORT_RESULTS[$tool_index]=$result
+    if [ "$result" = failed ]; then
+        _output_line "$color" "${label}: ${TOOL_LABELS[$tool_index]}"
+        _output_line "$color" "$reason" '  '
+    else
+        _output_line "$color" "${label}: ${TOOL_LABELS[$tool_index]}${reason:+ (${reason})}" '' '  '
+    fi
+}
+
+finish_report() {
+    local status=${1:-0}
+    local index
+    local reason=$FAILURE_REASON
+    local summary=''
+    local action_tool_index
+    local previous_tool_index=-1
+    local installed=0 updated=0 unchanged=0 skipped=0 failed=0 pending=0
+
+    [ "$REPORT_ACTIVE" -eq 1 ] || return 0
+    [ "$BASH_SUBSHELL" -eq "$REPORT_SUBSHELL" ] || return 0
+    if [ -z "$reason" ]; then
+        case "$status" in
+            130|143|129) reason="Interrupted (exit ${status})" ;;
+            *) reason="${CURRENT_STEP:-Operation did not complete} (exit ${status})" ;;
+        esac
+    fi
+    for index in "${REPORT_TOOLS[@]}"; do
+        if [ "${REPORT_RESULTS[$index]}" = running ]; then
+            record_result "$index" failed "$reason"
+        fi
+        case "${REPORT_RESULTS[$index]}" in
+            installed) installed=$((installed + 1)) ;;
+            updated) updated=$((updated + 1)) ;;
+            unchanged) unchanged=$((unchanged + 1)) ;;
+            skipped) skipped=$((skipped + 1)) ;;
+            failed) failed=$((failed + 1)) ;;
+            pending) pending=$((pending + 1)) ;;
+        esac
+    done
+    [ "$installed" -eq 0 ] || summary="${installed} installed, "
+    [ "$updated" -eq 0 ] || summary="${summary}${updated} updated, "
+    [ "$unchanged" -eq 0 ] || summary="${summary}${unchanged} unchanged, "
+    [ "$skipped" -eq 0 ] || summary="${summary}${skipped} skipped, "
+    summary="${summary}${failed} failed"
+    [ "$pending" -eq 0 ] || summary="${summary}, ${pending} not run"
+    printf '\n' >&2
+    _output_line 0 "Result: ${summary}" '' '  '
+    if [ "$pending" -gt 0 ]; then
+        _output_line 90 'Not run:' ''
+        for index in "${REPORT_TOOLS[@]}"; do
+            [ "${REPORT_RESULTS[$index]}" != pending ] || _output_line 90 "${TOOL_LABELS[$index]}" '  '
+        done
+    fi
+    if [ "${#ACTION_MESSAGES[@]}" -gt 0 ]; then
+        for ((index = 0; index < ${#ACTION_MESSAGES[@]}; index++)); do
+            action_tool_index=${ACTION_TOOL_INDEXES[$index]}
+            if [ "$action_tool_index" -ne "$previous_tool_index" ]; then
+                printf '\n' >&2
+                _output_line '1;33' "Action required: ${TOOL_LABELS[$action_tool_index]}" '' '  '
+                previous_tool_index=$action_tool_index
+            fi
+            _output_action_message "${ACTION_MESSAGES[$index]}"
+        done
+    fi
+    REPORT_ACTIVE=0
+    CURRENT_TOOLS=()
+}
 
 detect_platform() {
     local system_name
@@ -2658,7 +2980,10 @@ check_installed_tools() {
             case "$status" in
                 0) TOOL_INSTALLED[$tool_index]=1 ;;
                 1) ;;
-                *) return "$status" ;;
+                *)
+                    FAILURE_REASON="Could not check installation of ${TOOL_LABELS[$tool_index]} (exit ${status})"
+                    return "$status"
+                    ;;
             esac
         fi
     done
@@ -2836,7 +3161,17 @@ print_tui_line() {
     local detail=${3:-}
     local remaining
 
-    line=${line:0:$TERMINAL_COLUMNS}
+    remaining=$TERMINAL_COLUMNS
+    if [ -n "$detail" ] && [ "${#detail}" -lt $((TERMINAL_COLUMNS - 8)) ]; then
+        remaining=$((TERMINAL_COLUMNS - ${#detail}))
+    fi
+    if [ "${#line}" -gt "$remaining" ]; then
+        if [ "$remaining" -gt 3 ]; then
+            line="${line:0:$((remaining - 3))}..."
+        else
+            line=${line:0:$remaining}
+        fi
+    fi
     remaining=$((TERMINAL_COLUMNS - ${#line}))
     printf '%s%s' "$style" "$line"
     if [ "$remaining" -gt 0 ] && [ -n "$detail" ]; then
@@ -2877,6 +3212,7 @@ build_footer() {
 render_tui() {
     local cursor
     local detail
+    local header
     local indent
     local indicator
     local line
@@ -2896,7 +3232,14 @@ render_tui() {
     [ "$position_end" -le "$visible_count" ] || position_end=$visible_count
 
     printf '\033[H'
-    print_tui_line "hostinit - ${PLATFORM}    ${mode_tabs}"
+    header="hostinit - ${PLATFORM}    ${mode_tabs}"
+    if [ "${#header}" -gt "$TERMINAL_COLUMNS" ]; then
+        if [ "$MODE" = update ]; then mode_tabs='[Update]'; else mode_tabs='[Install]'; fi
+        header="hostinit - ${PLATFORM}  ${mode_tabs}"
+        [ "${#header}" -le "$TERMINAL_COLUMNS" ] || header="${PLATFORM} ${mode_tabs}"
+        [ "${#header}" -le "$TERMINAL_COLUMNS" ] || header=$mode_tabs
+    fi
+    print_tui_line "$header"
     printf '\n'
     [ "$TUI_VERTICAL_PADDING" -eq 0 ] || printf '\033[K\n'
     for ((position = VIEWPORT_START; position < position_end; position++)); do
@@ -2979,10 +3322,22 @@ show_help() {
         ''
         'Markers: [ ] none, [-] some, [x] all'
     )
+    prepare_help_lines
+}
+
+prepare_help_lines() {
+    local line
+
+    read_terminal_size
+    HELP_DISPLAY_LINES=()
+    for line in "${HELP_LINES[@]}"; do
+        wrap_text_lines "$line" "$TERMINAL_COLUMNS" '' '  ' 0
+        HELP_DISPLAY_LINES+=("${WRAPPED_LINES[@]}")
+    done
 }
 
 clamp_help_position() {
-    local maximum=$((${#HELP_LINES[@]} - TUI_NODE_CAPACITY))
+    local maximum=$((${#HELP_DISPLAY_LINES[@]} - TUI_NODE_CAPACITY))
 
     [ "$maximum" -ge 0 ] || maximum=0
     [ "$HELP_POSITION" -le "$maximum" ] || HELP_POSITION=$maximum
@@ -2994,16 +3349,16 @@ render_help() {
     local position_end
     local footer='j/k scroll | ?/Esc/Enter/q back'
 
-    read_terminal_size
+    prepare_help_lines
     clamp_help_position
     position_end=$((HELP_POSITION + TUI_NODE_CAPACITY))
-    [ "$position_end" -le "${#HELP_LINES[@]}" ] || position_end=${#HELP_LINES[@]}
+    [ "$position_end" -le "${#HELP_DISPLAY_LINES[@]}" ] || position_end=${#HELP_DISPLAY_LINES[@]}
     printf '\033[H'
     print_tui_line 'Keyboard help' $'\033[1m'
     printf '\n'
     [ "$TUI_VERTICAL_PADDING" -eq 0 ] || printf '\033[K\n'
     for ((index = HELP_POSITION; index < position_end; index++)); do
-        print_tui_line "${HELP_LINES[$index]}"
+        print_tui_line "${HELP_DISPLAY_LINES[$index]}"
         printf '\n'
     done
     [ "$TUI_VERTICAL_PADDING" -eq 0 ] || printf '\033[K\n'
@@ -3160,9 +3515,9 @@ print_confirmation_tree() {
         if [ "${NODE_SELECTED_TOOLS[$node_index]}" -gt 0 ]; then
             printf -v indent '%*s' "$((${NODE_DEPTHS[$node_index]} * 2))" ''
             if [ "$tool_index" -lt 0 ]; then
-                printf '%s%s\n' "$indent" "${NODE_LABELS[$node_index]}"
+                _output_line 0 "${NODE_LABELS[$node_index]}" "$indent" "$indent  "
             else
-                printf '%s- %s\n' "$indent" "${NODE_LABELS[$node_index]}"
+                _output_line 0 "${NODE_LABELS[$node_index]}" "$indent- " "$indent  "
             fi
         fi
     done
@@ -3180,9 +3535,12 @@ confirm_selection() {
 
     TUI_MESSAGE=''
     restore_terminal
-    printf '\nReview selected items (%s):\n\n' "$mode_label"
+    printf '\n' >&2
+    _output_line 0 "Review selected items (${mode_label}):" '' '  '
+    printf '\n' >&2
     print_confirmation_tree
-    printf '\n%s %s selected tools? [y/N] ' "$mode_label" "$SELECTED_TOOL_COUNT"
+    printf '\n' >&2
+    print_prompt "${mode_label} ${SELECTED_TOOL_COUNT} selected tools? [y/N]" ''
     IFS= read -r answer || answer=''
     case "$answer" in
         y|Y)
@@ -3244,12 +3602,16 @@ handle_tui_key() {
 
 run_tui() {
     if [ ! -t 0 ] || [ ! -t 1 ]; then
-        printf 'hostinit requires an interactive terminal\n' >&2
+        FAILURE_REASON='hostinit requires an interactive terminal'
         return 1
     fi
     STTY_STATE=$(stty -g) || return $?
     activate_terminal || return $?
-    printf 'hostinit - %s\033[K\n\033[K\nChecking installed tools...\033[K\n\033[J' "$PLATFORM"
+    read_terminal_size
+    print_tui_line "hostinit - ${PLATFORM}"
+    printf '\n\033[K\n'
+    print_tui_line 'Checking installed tools...'
+    printf '\n\033[J'
     initialize_tui || return $?
 
     while [ -z "$ACTION" ]; do
@@ -3275,14 +3637,14 @@ apt_command() {
 
 refresh_apt_metadata() {
     [ "$APT_METADATA_REFRESHED" -eq 0 ] || return 0
-    print_step 'Refreshing:' 'apt metadata'
+    print_step 'Refreshing apt metadata'
     run_checked apt_command update
     APT_METADATA_REFRESHED=1
 }
 
 refresh_brew_metadata() {
     [ "$BREW_METADATA_REFRESHED" -eq 0 ] || return 0
-    print_step 'Refreshing:' 'brew metadata'
+    print_step 'Refreshing Homebrew metadata'
     run_checked brew update
     BREW_METADATA_REFRESHED=1
     export HOMEBREW_NO_AUTO_UPDATE=1
@@ -3295,7 +3657,11 @@ apt_package_installed() {
     if [ "$APT_INSTALLED_CACHE_READY" -eq 0 ]; then
         output=$(dpkg-query -W -f='${binary:Package}\t${Status}\n' 2>&1)
         status=$?
-        [ "$status" -eq 0 ] || { printf '%s\n' "$output" >&2; return "$status"; }
+        if [ "$status" -ne 0 ]; then
+            restore_terminal
+            print_info "$output"
+            fatal "$status" 'Could not read installed apt packages'
+        fi
         APT_INSTALLED_PACKAGES=$(printf '%s\n' "$output" | awk '
             $2 == "install" && $3 == "ok" && $4 == "installed" {
                 print $1
@@ -3305,7 +3671,7 @@ apt_package_installed() {
             }
         ')
         status=$?
-        [ "$status" -eq 0 ] || return "$status"
+        [ "$status" -eq 0 ] || fatal "$status" 'Could not parse the installed apt package list'
         APT_INSTALLED_CACHE_READY=1
     fi
 
@@ -3320,10 +3686,10 @@ apt_package_has_update() {
 
     installed=$(dpkg-query -W -f='${Version}' "$1" 2>&1)
     status=$?
-    [ "$status" -eq 0 ] || { printf '%s\n' "$installed" >&2; exit "$status"; }
+    [ "$status" -eq 0 ] || { print_info "$installed"; fatal "$status" "Could not read the installed version of $1"; }
     policy=$(LC_ALL=C apt-cache policy "$1" 2>&1)
     status=$?
-    [ "$status" -eq 0 ] || { printf '%s\n' "$policy" >&2; exit "$status"; }
+    [ "$status" -eq 0 ] || { print_info "$policy"; fatal "$status" "Could not read available versions of $1"; }
     candidate=$(printf '%s\n' "$policy" |
         awk '$1 == "Candidate:" {print $2; exit}')
     status=$?
@@ -3399,12 +3765,20 @@ load_brew_installed_cache() {
 
     output=$("$brew_bin" list --formula 2>&1)
     status=$?
-    [ "$status" -eq 0 ] || { printf '%s\n' "$output" >&2; return "$status"; }
+    if [ "$status" -ne 0 ]; then
+        restore_terminal
+        print_info "$output"
+        fatal "$status" 'Could not read installed Homebrew formulae'
+    fi
     BREW_INSTALLED_FORMULAE=$output
 
     output=$("$brew_bin" list --cask 2>&1)
     status=$?
-    [ "$status" -eq 0 ] || { printf '%s\n' "$output" >&2; return "$status"; }
+    if [ "$status" -ne 0 ]; then
+        restore_terminal
+        print_info "$output"
+        fatal "$status" 'Could not read installed Homebrew casks'
+    fi
     BREW_INSTALLED_CASKS=$output
     BREW_INSTALLED_CACHE_READY=1
 }
@@ -3453,89 +3827,38 @@ tool_is_installed() {
     return 0
 }
 
-update_packages() {
+filter_package_updates() {
     local kind=$1
-    local manager
-    local outdated
+    local outdated=''
     local package
     local status
-    local -a current_packages
-    local -a update_packages
 
-    shift
-    manager=$(package_manager_label "$kind") || exit $?
-    current_packages=()
-    update_packages=()
+    UPDATE_TARGETS=()
+    print_step 'Checking package updates'
     case "$kind" in
         brew:*)
             outdated=$(brew outdated "--${kind#brew:}" --quiet 2>&1)
             status=$?
-            [ "$status" -eq 0 ] || { printf '%s\n' "$outdated" >&2; exit "$status"; }
+            [ "$status" -eq 0 ] || {
+                print_info "$outdated"
+                fatal "$status" 'Could not check Homebrew updates'
+            }
             ;;
     esac
-
-    for package in "$@"; do
-        if { [ "$kind" = apt ] && apt_package_has_update "$package"; } ||
-            { [ "$kind" != apt ] && installed_list_contains "$outdated" "$package"; }; then
-            update_packages[${#update_packages[@]}]=$package
+    for package in "${FILTERED_PACKAGES[@]}"; do
+        if [ "$kind" = apt ]; then
+            apt_package_has_update "$package"
+            status=$?
         else
-            current_packages[${#current_packages[@]}]=$package
+            installed_list_contains "$outdated" "$package"
+            status=$?
         fi
+        case "$status" in
+            0) UPDATE_TARGETS[${#UPDATE_TARGETS[@]}]=$package ;;
+            1) ;;
+            *) fatal "$status" "Could not check updates for ${package}" ;;
+        esac
     done
-    if [ "${#update_packages[@]}" -eq 0 ]; then
-        print_skip "No changes (${manager}):" "${current_packages[@]}"
-        return 1
-    fi
-
-    print_step "Updating (${manager}):" "${update_packages[@]}"
-    case "$kind" in
-        apt)
-            run_checked apt_command install --only-upgrade -y "${update_packages[@]}"
-            ;;
-        brew:formula)
-            run_checked brew upgrade "${update_packages[@]}"
-            ;;
-        brew:cask)
-            run_checked brew upgrade --cask "${update_packages[@]}"
-            ;;
-    esac
-    print_success "Updated (${manager}):" "${update_packages[@]}"
-    if [ "${#current_packages[@]}" -gt 0 ]; then
-        print_skip "No changes (${manager}):" "${current_packages[@]}"
-    fi
-    return 0
-}
-
-filter_batch_packages() {
-    local kind=$1
-    local manager
-    local mode=$2
-    local package
-    local installed
-    local -a skipped_packages
-
-    FILTERED_PACKAGES=()
-    skipped_packages=()
-    manager=$(package_manager_label "$kind") || return $?
-    for package in "${BATCH_PACKAGES[@]}"; do
-        installed=1
-        package_is_installed "$kind" "$package" && installed=0
-
-        if { [ "$mode" = 'install' ] && [ "$installed" -ne 0 ]; } ||
-            { [ "$mode" = 'update' ] && [ "$installed" -eq 0 ]; }; then
-            FILTERED_PACKAGES[${#FILTERED_PACKAGES[@]}]=$package
-        else
-            skipped_packages[${#skipped_packages[@]}]=$package
-        fi
-    done
-
-    if [ "${#skipped_packages[@]}" -gt 0 ]; then
-        if [ "$mode" = install ]; then
-            print_skip "Skipped (${manager}, already installed):" "${skipped_packages[@]}"
-        else
-            print_skip "Skipped (${manager}, not installed):" "${skipped_packages[@]}"
-        fi
-    fi
 }
 
 run_package_batch() {
@@ -3544,100 +3867,148 @@ run_package_batch() {
     local mode=$2
     local status
     local tool_index
+    local package
+    local eligible
+    local changed
+    local planned=''
+    local targets=''
+    local -a tool_indexes
+    local -a package_targets
 
     shift 2
-    manager=$(package_manager_label "$kind") || exit $?
-    BATCH_PACKAGES=()
-    for tool_index in "$@"; do
+    tool_indexes=("$@")
+    begin_tools "${tool_indexes[@]}"
+    manager=$(package_manager_label "$kind") || fatal 2 "Unknown package manager: ${kind}"
+    FILTERED_PACKAGES=()
+    for tool_index in "${tool_indexes[@]}"; do
+        BATCH_PACKAGES=()
         append_tool_packages "$tool_index"
+        eligible=0
+        for package in "${BATCH_PACKAGES[@]}"; do
+            package_is_installed "$kind" "$package"
+            status=$?
+            case "$status" in
+                0|1) ;;
+                *) fatal "$status" "Could not check installation of ${package}" ;;
+            esac
+            if { [ "$mode" = install ] && [ "$status" -eq 1 ]; } ||
+                { [ "$mode" = update ] && [ "$status" -eq 0 ]; }; then
+                eligible=1
+                if ! installed_list_contains "$planned" "$package"; then
+                    FILTERED_PACKAGES[${#FILTERED_PACKAGES[@]}]=$package
+                    planned="${planned}${planned:+$'\n'}${package}"
+                fi
+            fi
+        done
+        if [ "$eligible" -eq 0 ]; then
+            if [ "$mode" = install ]; then
+                record_result "$tool_index" skipped 'already installed'
+            else
+                record_result "$tool_index" skipped 'not installed'
+            fi
+        fi
     done
-    CURRENT_OPERATION="${mode} (${manager}): ${BATCH_PACKAGES[*]}"
-    filter_batch_packages "$kind" "$mode"
-    if [ "${#FILTERED_PACKAGES[@]}" -eq 0 ]; then
-        CURRENT_OPERATION=''
-        [ "$mode" = update ] && return 1
-        return 0
-    fi
+    [ "${#FILTERED_PACKAGES[@]}" -gt 0 ] || return 0
 
     case "$kind" in
         apt) refresh_apt_metadata ;;
         brew:*) refresh_brew_metadata ;;
     esac
+    package_targets=("${FILTERED_PACKAGES[@]}")
     if [ "$mode" = update ]; then
-        update_packages "$kind" "${FILTERED_PACKAGES[@]}"
-        status=$?
-        case "$status" in
-            0|1) CURRENT_OPERATION='' ;;
-        esac
-        return "$status"
+        filter_package_updates "$kind"
+        package_targets=("${UPDATE_TARGETS[@]}")
+        for package in "${package_targets[@]}"; do
+            targets="${targets}${targets:+$'\n'}${package}"
+        done
+        for tool_index in "${tool_indexes[@]}"; do
+            [ "${REPORT_RESULTS[$tool_index]}" = running ] || continue
+            BATCH_PACKAGES=()
+            append_tool_packages "$tool_index"
+            changed=0
+            for package in "${BATCH_PACKAGES[@]}"; do
+                if installed_list_contains "$targets" "$package"; then
+                    changed=1
+                    break
+                fi
+            done
+            [ "$changed" -eq 1 ] || record_result "$tool_index" unchanged 'no updates available'
+        done
     fi
+    [ "${#package_targets[@]}" -gt 0 ] || return 0
 
-    print_step "Installing (${manager}):" "${FILTERED_PACKAGES[@]}"
-    case "$kind" in
-        apt)
-            run_checked apt_command install -y "${FILTERED_PACKAGES[@]}"
-            APT_INSTALLED_CACHE_READY=0
-            ;;
-        brew:formula)
-            run_checked brew install --no-ask "${FILTERED_PACKAGES[@]}"
-            BREW_INSTALLED_CACHE_READY=0
-            ;;
-        brew:cask)
-            run_checked brew install --cask --no-ask "${FILTERED_PACKAGES[@]}"
-            BREW_INSTALLED_CACHE_READY=0
-            ;;
-    esac
-    print_success "Installed (${manager}):" "${FILTERED_PACKAGES[@]}"
-    CURRENT_OPERATION=''
+    if [ "$mode" = install ]; then
+        print_step "Installing packages (${manager}): ${package_targets[*]}"
+        case "$kind" in
+            apt) apt_command install -y "${package_targets[@]}" ;;
+            brew:formula) brew install --no-ask "${package_targets[@]}" ;;
+            brew:cask) brew install --cask --no-ask "${package_targets[@]}" ;;
+        esac
+    else
+        print_step "Updating packages (${manager}): ${package_targets[*]}"
+        case "$kind" in
+            apt) apt_command install --only-upgrade -y "${package_targets[@]}" ;;
+            brew:formula) brew upgrade "${package_targets[@]}" ;;
+            brew:cask) brew upgrade --cask "${package_targets[@]}" ;;
+        esac
+    fi
+    status=$?
+    [ "$status" -eq 0 ] || fatal "$status" \
+        "Could not complete ${mode} batch (${manager}, exit ${status}); some packages may have changed"
+    APT_INSTALLED_CACHE_READY=0
+    BREW_INSTALLED_CACHE_READY=0
+    for tool_index in "${tool_indexes[@]}"; do
+        [ "${REPORT_RESULTS[$tool_index]}" = running ] || continue
+        if [ "$mode" = install ]; then
+            record_result "$tool_index" installed
+        else
+            record_result "$tool_index" updated
+        fi
+    done
 }
 
 run_custom_tool() {
     local tool_index=$1
-    local tool_label=${TOOL_LABELS[$tool_index]}
     local function_prefix=${TOOL_NAMES[$tool_index]}
     local status
 
+    begin_tools "$tool_index"
     if ! tool_supports_action "$tool_index" "$MODE"; then
-        print_skip "Skipped (${MODE} not supported): ${tool_label}"
+        record_result "$tool_index" skipped "${MODE} not supported"
         return 0
     fi
 
-    CURRENT_OPERATION=$tool_label
     tool_is_installed "$tool_index"
     status=$?
     case "$MODE:$status" in
         install:0)
-            print_skip "Skipped (already installed): ${tool_label}"
-            CURRENT_OPERATION=''
+            record_result "$tool_index" skipped 'already installed'
             return 0
             ;;
         install:1)
-            print_step "Installing: ${tool_label}"
+            CURRENT_STEP='Installing selected item'
             run_checked "${function_prefix}_install"
-            print_success "Installed: ${tool_label}"
-            CURRENT_OPERATION=''
+            record_result "$tool_index" "${OPERATION_RESULT:-installed}" "$OPERATION_REASON"
             return 0
             ;;
         update:0) ;;
         update:1)
-            print_skip "Skipped (not installed): ${tool_label}"
-            CURRENT_OPERATION=''
+            record_result "$tool_index" skipped 'not installed'
             return 0
             ;;
         *)
-            exit "$status"
+            fatal "$status" "Could not check installation status (exit ${status})"
             ;;
     esac
 
-    print_step "Updating: ${tool_label}"
+    CURRENT_STEP='Updating selected item'
     "${function_prefix}_update"
     status=$?
     case "$status" in
-        0) print_success "Updated: ${tool_label}" ;;
-        1) print_skip "No changes: ${tool_label}" ;;
-        *) exit "$status" ;;
+        0) record_result "$tool_index" "${OPERATION_RESULT:-updated}" "$OPERATION_REASON" ;;
+        1) record_result "$tool_index" "${OPERATION_RESULT:-unchanged}" "${OPERATION_REASON:-no changes needed}" ;;
+        *) fatal "$status" ;;
     esac
-    CURRENT_OPERATION=''
 }
 
 flush_package_batch() {
@@ -3657,6 +4028,7 @@ execute_selected() {
     local index
     local kind
 
+    start_report
     BATCH_KIND=''
     BATCH_TOOL_INDEXES=()
     for ((index = 0; index < TOOL_COUNT; index++)); do
@@ -3677,25 +4049,27 @@ execute_selected() {
         fi
     done
     flush_package_batch
+    finish_report
 }
 
 main() {
     local status
 
     if [ "$#" -ne 0 ]; then
-        printf 'hostinit.sh does not accept arguments\n' >&2
-        return 2
+        fatal 2 'hostinit.sh does not accept arguments'
     fi
     if ! detect_platform; then
-        printf 'unsupported platform\n' >&2
-        return 1
+        fatal 1 'Unsupported platform'
     fi
 
     configure_tools
     load_custom_modules
     run_tui
     status=$?
-    [ "$status" -eq 0 ] || return "$status"
+    if [ "$status" -ne 0 ]; then
+        restore_terminal
+        fatal "$status" "${FAILURE_REASON:-Could not read the interactive selection}"
+    fi
     [ "$ACTION" = 'execute' ] || return 0
     restore_terminal
     execute_selected

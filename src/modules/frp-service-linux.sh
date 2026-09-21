@@ -52,10 +52,7 @@ _frp_systemd_create_config() {
 _frp_systemd_print_next_step() {
     local component=$1
 
-    printf '\n\033[1;33mACTION REQUIRED:\033[0m\n'
-    printf 'Edit /etc/frp/%s.toml, then start the registered service:\n' "$component"
-    printf '  sudo systemctl start %s.service\n' "$component"
-    printf '\n'
+    print_action_required "Edit /etc/frp/${component}.toml, then run:"$'\n'"  sudo systemctl start ${component}.service"
 }
 
 _frp_systemd_register() {
@@ -67,9 +64,10 @@ _frp_systemd_register() {
     local temp_dir
     local unit
 
+    print_step "Registering the ${component} systemd service"
     binary=$(command -v "$component")
     status=$?
-    [ "$status" -eq 0 ] || fatal "$status"
+    [ "$status" -eq 0 ] || fatal "$status" "Install ${component} before registering its service"
     case "$component" in
         frpc) description='FRP client' ;;
         frps) description='FRP server' ;;

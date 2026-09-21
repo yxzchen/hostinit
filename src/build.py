@@ -23,6 +23,7 @@ CONFIG_PATH = SOURCE_DIR / "config.yaml"
 OUTPUT_PATH = PROJECT_DIR / "hostinit.sh"
 RUNTIME_PATHS = (
     SOURCE_DIR / "runtime" / "common.sh",
+    SOURCE_DIR / "runtime" / "output.sh",
     SOURCE_DIR / "runtime" / "platform.sh",
     SOURCE_DIR / "runtime" / "tui.sh",
     SOURCE_DIR / "runtime" / "packages.sh",
@@ -94,10 +95,6 @@ class Tool:
     @property
     def name(self) -> str:
         return self.path[-1]
-
-    @property
-    def label(self) -> str:
-        return " / ".join(self.path)
 
 
 @dataclass(frozen=True)
@@ -326,7 +323,7 @@ def generate_tool_data(tools: list[Tool]) -> str:
             (
                 f"TOOL_IDS[{index}]={shell_quote(tool.stable_id)}",
                 f"TOOL_NAMES[{index}]={shell_quote(tool.name)}",
-                f"TOOL_LABELS[{index}]={shell_quote(tool.label)}",
+                f"TOOL_LABELS[{index}]={shell_quote(tool.name)}",
             )
         )
 

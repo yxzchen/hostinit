@@ -8,14 +8,14 @@ apt_command() {
 
 refresh_apt_metadata() {
     [ "$APT_METADATA_REFRESHED" -eq 0 ] || return 0
-    print_step 'Refreshing:' 'apt metadata'
+    print_step 'Refreshing apt metadata'
     run_checked apt_command update
     APT_METADATA_REFRESHED=1
 }
 
 refresh_brew_metadata() {
     [ "$BREW_METADATA_REFRESHED" -eq 0 ] || return 0
-    print_step 'Refreshing:' 'brew metadata'
+    print_step 'Refreshing Homebrew metadata'
     run_checked brew update
     BREW_METADATA_REFRESHED=1
     export HOMEBREW_NO_AUTO_UPDATE=1
@@ -28,7 +28,11 @@ apt_package_installed() {
     if [ "$APT_INSTALLED_CACHE_READY" -eq 0 ]; then
         output=$(dpkg-query -W -f='${binary:Package}\t${Status}\n' 2>&1)
         status=$?
-        [ "$status" -eq 0 ] || { printf '%s\n' "$output" >&2; return "$status"; }
+        if [ "$status" -ne 0 ]; then
+            restore_terminal
+            print_info "$output"
+            fatal "$status" 'Could not read installed apt packages'
+        fi
         APT_INSTALLED_PACKAGES=$(printf '%s\n' "$output" | awk '
             $2 == "install" && $3 == "ok" && $4 == "installed" {
                 print $1
@@ -38,7 +42,7 @@ apt_package_installed() {
             }
         ')
         status=$?
-        [ "$status" -eq 0 ] || return "$status"
+        [ "$status" -eq 0 ] || fatal "$status" 'Could not parse the installed apt package list'
         APT_INSTALLED_CACHE_READY=1
     fi
 
@@ -53,10 +57,10 @@ apt_package_has_update() {
 
     installed=$(dpkg-query -W -f='${Version}' "$1" 2>&1)
     status=$?
-    [ "$status" -eq 0 ] || { printf '%s\n' "$installed" >&2; exit "$status"; }
+    [ "$status" -eq 0 ] || { print_info "$installed"; fatal "$status" "Could not read the installed version of $1"; }
     policy=$(LC_ALL=C apt-cache policy "$1" 2>&1)
     status=$?
-    [ "$status" -eq 0 ] || { printf '%s\n' "$policy" >&2; exit "$status"; }
+    [ "$status" -eq 0 ] || { print_info "$policy"; fatal "$status" "Could not read available versions of $1"; }
     candidate=$(printf '%s\n' "$policy" |
         awk '$1 == "Candidate:" {print $2; exit}')
     status=$?
@@ -132,12 +136,20 @@ load_brew_installed_cache() {
 
     output=$("$brew_bin" list --formula 2>&1)
     status=$?
-    [ "$status" -eq 0 ] || { printf '%s\n' "$output" >&2; return "$status"; }
+    if [ "$status" -ne 0 ]; then
+        restore_terminal
+        print_info "$output"
+        fatal "$status" 'Could not read installed Homebrew formulae'
+    fi
     BREW_INSTALLED_FORMULAE=$output
 
     output=$("$brew_bin" list --cask 2>&1)
     status=$?
-    [ "$status" -eq 0 ] || { printf '%s\n' "$output" >&2; return "$status"; }
+    if [ "$status" -ne 0 ]; then
+        restore_terminal
+        print_info "$output"
+        fatal "$status" 'Could not read installed Homebrew casks'
+    fi
     BREW_INSTALLED_CASKS=$output
     BREW_INSTALLED_CACHE_READY=1
 }
@@ -186,89 +198,38 @@ tool_is_installed() {
     return 0
 }
 
-update_packages() {
+filter_package_updates() {
     local kind=$1
-    local manager
-    local outdated
+    local outdated=''
     local package
     local status
-    local -a current_packages
-    local -a update_packages
 
-    shift
-    manager=$(package_manager_label "$kind") || exit $?
-    current_packages=()
-    update_packages=()
+    UPDATE_TARGETS=()
+    print_step 'Checking package updates'
     case "$kind" in
         brew:*)
             outdated=$(brew outdated "--${kind#brew:}" --quiet 2>&1)
             status=$?
-            [ "$status" -eq 0 ] || { printf '%s\n' "$outdated" >&2; exit "$status"; }
+            [ "$status" -eq 0 ] || {
+                print_info "$outdated"
+                fatal "$status" 'Could not check Homebrew updates'
+            }
             ;;
     esac
-
-    for package in "$@"; do
-        if { [ "$kind" = apt ] && apt_package_has_update "$package"; } ||
-            { [ "$kind" != apt ] && installed_list_contains "$outdated" "$package"; }; then
-            update_packages[${#update_packages[@]}]=$package
+    for package in "${FILTERED_PACKAGES[@]}"; do
+        if [ "$kind" = apt ]; then
+            apt_package_has_update "$package"
+            status=$?
         else
-            current_packages[${#current_packages[@]}]=$package
+            installed_list_contains "$outdated" "$package"
+            status=$?
         fi
+        case "$status" in
+            0) UPDATE_TARGETS[${#UPDATE_TARGETS[@]}]=$package ;;
+            1) ;;
+            *) fatal "$status" "Could not check updates for ${package}" ;;
+        esac
     done
-    if [ "${#update_packages[@]}" -eq 0 ]; then
-        print_skip "No changes (${manager}):" "${current_packages[@]}"
-        return 1
-    fi
-
-    print_step "Updating (${manager}):" "${update_packages[@]}"
-    case "$kind" in
-        apt)
-            run_checked apt_command install --only-upgrade -y "${update_packages[@]}"
-            ;;
-        brew:formula)
-            run_checked brew upgrade "${update_packages[@]}"
-            ;;
-        brew:cask)
-            run_checked brew upgrade --cask "${update_packages[@]}"
-            ;;
-    esac
-    print_success "Updated (${manager}):" "${update_packages[@]}"
-    if [ "${#current_packages[@]}" -gt 0 ]; then
-        print_skip "No changes (${manager}):" "${current_packages[@]}"
-    fi
-    return 0
-}
-
-filter_batch_packages() {
-    local kind=$1
-    local manager
-    local mode=$2
-    local package
-    local installed
-    local -a skipped_packages
-
-    FILTERED_PACKAGES=()
-    skipped_packages=()
-    manager=$(package_manager_label "$kind") || return $?
-    for package in "${BATCH_PACKAGES[@]}"; do
-        installed=1
-        package_is_installed "$kind" "$package" && installed=0
-
-        if { [ "$mode" = 'install' ] && [ "$installed" -ne 0 ]; } ||
-            { [ "$mode" = 'update' ] && [ "$installed" -eq 0 ]; }; then
-            FILTERED_PACKAGES[${#FILTERED_PACKAGES[@]}]=$package
-        else
-            skipped_packages[${#skipped_packages[@]}]=$package
-        fi
-    done
-
-    if [ "${#skipped_packages[@]}" -gt 0 ]; then
-        if [ "$mode" = install ]; then
-            print_skip "Skipped (${manager}, already installed):" "${skipped_packages[@]}"
-        else
-            print_skip "Skipped (${manager}, not installed):" "${skipped_packages[@]}"
-        fi
-    fi
 }
 
 run_package_batch() {
@@ -277,49 +238,102 @@ run_package_batch() {
     local mode=$2
     local status
     local tool_index
+    local package
+    local eligible
+    local changed
+    local planned=''
+    local targets=''
+    local -a tool_indexes
+    local -a package_targets
 
     shift 2
-    manager=$(package_manager_label "$kind") || exit $?
-    BATCH_PACKAGES=()
-    for tool_index in "$@"; do
+    tool_indexes=("$@")
+    begin_tools "${tool_indexes[@]}"
+    manager=$(package_manager_label "$kind") || fatal 2 "Unknown package manager: ${kind}"
+    FILTERED_PACKAGES=()
+    for tool_index in "${tool_indexes[@]}"; do
+        BATCH_PACKAGES=()
         append_tool_packages "$tool_index"
+        eligible=0
+        for package in "${BATCH_PACKAGES[@]}"; do
+            package_is_installed "$kind" "$package"
+            status=$?
+            case "$status" in
+                0|1) ;;
+                *) fatal "$status" "Could not check installation of ${package}" ;;
+            esac
+            if { [ "$mode" = install ] && [ "$status" -eq 1 ]; } ||
+                { [ "$mode" = update ] && [ "$status" -eq 0 ]; }; then
+                eligible=1
+                if ! installed_list_contains "$planned" "$package"; then
+                    FILTERED_PACKAGES[${#FILTERED_PACKAGES[@]}]=$package
+                    planned="${planned}${planned:+$'\n'}${package}"
+                fi
+            fi
+        done
+        if [ "$eligible" -eq 0 ]; then
+            if [ "$mode" = install ]; then
+                record_result "$tool_index" skipped 'already installed'
+            else
+                record_result "$tool_index" skipped 'not installed'
+            fi
+        fi
     done
-    CURRENT_OPERATION="${mode} (${manager}): ${BATCH_PACKAGES[*]}"
-    filter_batch_packages "$kind" "$mode"
-    if [ "${#FILTERED_PACKAGES[@]}" -eq 0 ]; then
-        CURRENT_OPERATION=''
-        [ "$mode" = update ] && return 1
-        return 0
-    fi
+    [ "${#FILTERED_PACKAGES[@]}" -gt 0 ] || return 0
 
     case "$kind" in
         apt) refresh_apt_metadata ;;
         brew:*) refresh_brew_metadata ;;
     esac
+    package_targets=("${FILTERED_PACKAGES[@]}")
     if [ "$mode" = update ]; then
-        update_packages "$kind" "${FILTERED_PACKAGES[@]}"
-        status=$?
-        case "$status" in
-            0|1) CURRENT_OPERATION='' ;;
-        esac
-        return "$status"
+        filter_package_updates "$kind"
+        package_targets=("${UPDATE_TARGETS[@]}")
+        for package in "${package_targets[@]}"; do
+            targets="${targets}${targets:+$'\n'}${package}"
+        done
+        for tool_index in "${tool_indexes[@]}"; do
+            [ "${REPORT_RESULTS[$tool_index]}" = running ] || continue
+            BATCH_PACKAGES=()
+            append_tool_packages "$tool_index"
+            changed=0
+            for package in "${BATCH_PACKAGES[@]}"; do
+                if installed_list_contains "$targets" "$package"; then
+                    changed=1
+                    break
+                fi
+            done
+            [ "$changed" -eq 1 ] || record_result "$tool_index" unchanged 'no updates available'
+        done
     fi
+    [ "${#package_targets[@]}" -gt 0 ] || return 0
 
-    print_step "Installing (${manager}):" "${FILTERED_PACKAGES[@]}"
-    case "$kind" in
-        apt)
-            run_checked apt_command install -y "${FILTERED_PACKAGES[@]}"
-            APT_INSTALLED_CACHE_READY=0
-            ;;
-        brew:formula)
-            run_checked brew install --no-ask "${FILTERED_PACKAGES[@]}"
-            BREW_INSTALLED_CACHE_READY=0
-            ;;
-        brew:cask)
-            run_checked brew install --cask --no-ask "${FILTERED_PACKAGES[@]}"
-            BREW_INSTALLED_CACHE_READY=0
-            ;;
-    esac
-    print_success "Installed (${manager}):" "${FILTERED_PACKAGES[@]}"
-    CURRENT_OPERATION=''
+    if [ "$mode" = install ]; then
+        print_step "Installing packages (${manager}): ${package_targets[*]}"
+        case "$kind" in
+            apt) apt_command install -y "${package_targets[@]}" ;;
+            brew:formula) brew install --no-ask "${package_targets[@]}" ;;
+            brew:cask) brew install --cask --no-ask "${package_targets[@]}" ;;
+        esac
+    else
+        print_step "Updating packages (${manager}): ${package_targets[*]}"
+        case "$kind" in
+            apt) apt_command install --only-upgrade -y "${package_targets[@]}" ;;
+            brew:formula) brew upgrade "${package_targets[@]}" ;;
+            brew:cask) brew upgrade --cask "${package_targets[@]}" ;;
+        esac
+    fi
+    status=$?
+    [ "$status" -eq 0 ] || fatal "$status" \
+        "Could not complete ${mode} batch (${manager}, exit ${status}); some packages may have changed"
+    APT_INSTALLED_CACHE_READY=0
+    BREW_INSTALLED_CACHE_READY=0
+    for tool_index in "${tool_indexes[@]}"; do
+        [ "${REPORT_RESULTS[$tool_index]}" = running ] || continue
+        if [ "$mode" = install ]; then
+            record_result "$tool_index" installed
+        else
+            record_result "$tool_index" updated
+        fi
+    done
 }

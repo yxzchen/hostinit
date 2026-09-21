@@ -49,6 +49,7 @@ dotfiles_install() {
     local temp_dir
     local zim_home=${ZIM_HOME:-$HOME/.zim}
 
+    print_step 'Downloading shell and Git configuration files'
     _dotfiles_set_expected_files
     temp_dir=$(mktemp -d "${TMPDIR:-/tmp}/hostinit-dotfiles.XXXXXX")
     status=$?
@@ -71,6 +72,7 @@ dotfiles_install() {
             fatal "$status"
         fi
     done
+    print_step 'Installing shell and Git configuration files'
     for filename in "${DOTFILES_EXPECTED_FILES[@]}"; do
         install -m 0644 "$source_dir/$filename" "$HOME/$filename"
         status=$?

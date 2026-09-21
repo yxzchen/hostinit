@@ -8,6 +8,7 @@ _zimfw_run_action() {
     local zim_home=${ZIM_HOME:-$HOME/.zim}
     local zimrc=${ZIM_CONFIG_FILE:-$HOME/.zimrc}
 
+    print_step "Applying Zimfw action: ${action}"
     run_checked env ZIM_HOME="$zim_home" ZIM_CONFIG_FILE="$zimrc" \
         zsh -c 'source "$1" "$2" -q' -- "$zim_home/zimfw.zsh" "$action"
 }
@@ -28,13 +29,14 @@ _zimfw_check_updates() {
     local zim_home=${ZIM_HOME:-$HOME/.zim}
     local zimrc=${ZIM_CONFIG_FILE:-$HOME/.zimrc}
 
+    print_step 'Checking Zimfw and module updates'
     ZIMFW_MODULE_UPDATE_NEEDED=0
     ZIMFW_UPGRADE_NEEDED=0
     version_output=$(env ZIM_HOME="$zim_home" ZIM_CONFIG_FILE="$zimrc" \
         zsh -c 'source "$1" "$2" -v' \
         -- "$zim_home/zimfw.zsh" check-version 2>&1)
     status=$?
-    [ "$status" -eq 0 ] || { printf '%s\n' "$version_output" >&2; fatal "$status"; }
+    [ "$status" -eq 0 ] || { print_info "$version_output"; fatal "$status" 'Could not check the Zimfw version'; }
     case "$version_output" in
         *'Latest zimfw version is '*) ZIMFW_UPGRADE_NEEDED=1 ;;
     esac
@@ -43,7 +45,7 @@ _zimfw_check_updates() {
         zsh -c 'source "$1" "$2" -v' \
         -- "$zim_home/zimfw.zsh" check 2>&1)
     status=$?
-    [ "$status" -eq 0 ] || { printf '%s\n' "$module_output" >&2; fatal "$status"; }
+    [ "$status" -eq 0 ] || { print_info "$module_output"; fatal "$status" 'Could not check Zimfw modules'; }
     case "$module_output" in
         *': Update available'*) ZIMFW_MODULE_UPDATE_NEEDED=1 ;;
     esac
@@ -66,10 +68,10 @@ zimfw_install() {
         return 0
     fi
     if [ -e "$zim_home" ]; then
-        printf '%s exists but is not a complete Zimfw installation\n' "$zim_home" >&2
-        fatal 1
+        fatal 1 "${zim_home} exists but is not a complete Zimfw installation"
     fi
 
+    print_step 'Downloading the Zimfw installer'
     temp_dir=$(mktemp -d "${TMPDIR:-/tmp}/hostinit-zimfw.XXXXXX")
     status=$?
     [ "$status" -eq 0 ] || fatal "$status"
@@ -83,6 +85,7 @@ zimfw_install() {
     zsh_bin=$(command -v zsh)
     status=$?
     [ "$status" -eq 0 ] || { rm -rf "$temp_dir"; fatal "$status"; }
+    print_step 'Installing Zimfw'
     env SHELL="$zsh_bin" ZIM_HOME="$zim_home" ZIM_CONFIG_FILE="$zimrc" \
         zsh "$installer"
     status=$?

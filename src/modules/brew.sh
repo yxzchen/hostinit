@@ -26,6 +26,7 @@ _brew_configure_shellenv() {
     local shellenv
     local status
 
+    print_step 'Configuring the Homebrew shell environment'
     line=$(_brew_shellenv_line "$brew_bin")
     if [ ! -f "$HOME/.zprofile" ] || ! grep -Fqx "$line" "$HOME/.zprofile"; then
         printf '\n%s\n' "$line" >>"$HOME/.zprofile"
@@ -63,6 +64,7 @@ brew_install() {
         return 0
     fi
 
+    print_step 'Downloading the Homebrew installer'
     temp_dir=$(mktemp -d "${TMPDIR:-/tmp}/hostinit-brew.XXXXXX")
     status=$?
     [ "$status" -eq 0 ] || fatal "$status"
@@ -73,6 +75,7 @@ brew_install() {
         -o "$installer"
     status=$?
     [ "$status" -eq 0 ] || { rm -rf "$temp_dir"; fatal "$status"; }
+    print_step 'Installing Homebrew'
     env NONINTERACTIVE=1 /bin/bash "$installer"
     status=$?
     rm -rf "$temp_dir"
@@ -89,12 +92,13 @@ brew_update() {
     local output
     local status
 
+    print_step 'Updating Homebrew metadata'
     brew_bin=$(_brew_find)
     status=$?
     [ "$status" -eq 0 ] || fatal "$status"
     output=$("$brew_bin" update 2>&1)
     status=$?
-    printf '%s\n' "$output"
+    print_info "$output"
     [ "$status" -eq 0 ] || fatal "$status"
     BREW_METADATA_REFRESHED=1
     export HOMEBREW_NO_AUTO_UPDATE=1

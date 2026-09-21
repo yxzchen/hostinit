@@ -14,6 +14,7 @@ _docker_configure_service() {
     local user
     local user_groups
 
+    print_step 'Configuring the Docker service and user access'
     run_as_root systemctl enable docker
     run_as_root systemctl start docker
     user=$(id -un)
@@ -23,9 +24,7 @@ _docker_configure_service() {
         *' docker '*) ;;
         *)
             run_as_root usermod -aG docker "$user"
-            printf '\n\033[1;33mACTION REQUIRED:\033[0m\n'
-            printf 'Sign out and sign in again before using Docker without sudo.\n'
-            printf '\n'
+            print_action_required 'Sign out and sign in again before using Docker without sudo'
             ;;
     esac
 }
@@ -40,8 +39,9 @@ _docker_setup_repository() {
     local status
     local temp_dir
 
-    arch=$(dpkg --print-architecture)
-    codename=$(_docker_codename)
+    print_step 'Configuring the Docker package repository'
+    arch=$(dpkg --print-architecture) || fatal $? 'Could not determine the package architecture'
+    codename=$(_docker_codename) || fatal $? 'Could not determine the distribution codename'
     temp_dir=$(mktemp -d "${TMPDIR:-/tmp}/hostinit-docker.XXXXXX")
     status=$?
     [ "$status" -eq 0 ] || fatal "$status"
@@ -62,7 +62,7 @@ _docker_setup_repository() {
     [ "$status" -eq 0 ] || { rm -rf "$temp_dir"; fatal "$status"; }
     if [ "$actual_fingerprint" != 9DC858229FC7DD38854AE2D88D81803C0EBFCD88 ]; then
         rm -rf "$temp_dir"
-        fatal 1
+        fatal 1 'The Docker repository signing key has an unexpected fingerprint'
     fi
     printf 'deb [arch=%s signed-by=/etc/apt/keyrings/docker.asc] ' "$arch" >"$source"
     printf 'https://download.docker.com/linux/%s %s stable\n' \
@@ -89,6 +89,7 @@ _docker_install_missing_components() {
         apt-cache policy "$package" | awk '$1 == "Candidate:" && $2 != "(none)" {found = 1} END {exit !found}'
         [ "$?" -eq 0 ] || fatal 1
     done
+    print_step 'Installing Docker components'
     run_as_root apt-get install -y --no-install-recommends "${missing[@]}"
 }
 
@@ -128,6 +129,7 @@ docker_update() {
         fi
     done
     [ "$update_available" -eq 1 ] || return 1
+    print_step 'Updating Docker components'
     before=$(dpkg-query -W -f='${binary:Package}=${Version}\n' \
         docker-ce docker-ce-cli containerd.io)
     status=$?

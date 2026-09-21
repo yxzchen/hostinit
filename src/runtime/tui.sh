@@ -88,7 +88,10 @@ check_installed_tools() {
             case "$status" in
                 0) TOOL_INSTALLED[$tool_index]=1 ;;
                 1) ;;
-                *) return "$status" ;;
+                *)
+                    FAILURE_REASON="Could not check installation of ${TOOL_LABELS[$tool_index]} (exit ${status})"
+                    return "$status"
+                    ;;
             esac
         fi
     done
@@ -266,7 +269,17 @@ print_tui_line() {
     local detail=${3:-}
     local remaining
 
-    line=${line:0:$TERMINAL_COLUMNS}
+    remaining=$TERMINAL_COLUMNS
+    if [ -n "$detail" ] && [ "${#detail}" -lt $((TERMINAL_COLUMNS - 8)) ]; then
+        remaining=$((TERMINAL_COLUMNS - ${#detail}))
+    fi
+    if [ "${#line}" -gt "$remaining" ]; then
+        if [ "$remaining" -gt 3 ]; then
+            line="${line:0:$((remaining - 3))}..."
+        else
+            line=${line:0:$remaining}
+        fi
+    fi
     remaining=$((TERMINAL_COLUMNS - ${#line}))
     printf '%s%s' "$style" "$line"
     if [ "$remaining" -gt 0 ] && [ -n "$detail" ]; then
@@ -307,6 +320,7 @@ build_footer() {
 render_tui() {
     local cursor
     local detail
+    local header
     local indent
     local indicator
     local line
@@ -326,7 +340,14 @@ render_tui() {
     [ "$position_end" -le "$visible_count" ] || position_end=$visible_count
 
     printf '\033[H'
-    print_tui_line "hostinit - ${PLATFORM}    ${mode_tabs}"
+    header="hostinit - ${PLATFORM}    ${mode_tabs}"
+    if [ "${#header}" -gt "$TERMINAL_COLUMNS" ]; then
+        if [ "$MODE" = update ]; then mode_tabs='[Update]'; else mode_tabs='[Install]'; fi
+        header="hostinit - ${PLATFORM}  ${mode_tabs}"
+        [ "${#header}" -le "$TERMINAL_COLUMNS" ] || header="${PLATFORM} ${mode_tabs}"
+        [ "${#header}" -le "$TERMINAL_COLUMNS" ] || header=$mode_tabs
+    fi
+    print_tui_line "$header"
     printf '\n'
     [ "$TUI_VERTICAL_PADDING" -eq 0 ] || printf '\033[K\n'
     for ((position = VIEWPORT_START; position < position_end; position++)); do
@@ -409,10 +430,22 @@ show_help() {
         ''
         'Markers: [ ] none, [-] some, [x] all'
     )
+    prepare_help_lines
+}
+
+prepare_help_lines() {
+    local line
+
+    read_terminal_size
+    HELP_DISPLAY_LINES=()
+    for line in "${HELP_LINES[@]}"; do
+        wrap_text_lines "$line" "$TERMINAL_COLUMNS" '' '  ' 0
+        HELP_DISPLAY_LINES+=("${WRAPPED_LINES[@]}")
+    done
 }
 
 clamp_help_position() {
-    local maximum=$((${#HELP_LINES[@]} - TUI_NODE_CAPACITY))
+    local maximum=$((${#HELP_DISPLAY_LINES[@]} - TUI_NODE_CAPACITY))
 
     [ "$maximum" -ge 0 ] || maximum=0
     [ "$HELP_POSITION" -le "$maximum" ] || HELP_POSITION=$maximum
@@ -424,16 +457,16 @@ render_help() {
     local position_end
     local footer='j/k scroll | ?/Esc/Enter/q back'
 
-    read_terminal_size
+    prepare_help_lines
     clamp_help_position
     position_end=$((HELP_POSITION + TUI_NODE_CAPACITY))
-    [ "$position_end" -le "${#HELP_LINES[@]}" ] || position_end=${#HELP_LINES[@]}
+    [ "$position_end" -le "${#HELP_DISPLAY_LINES[@]}" ] || position_end=${#HELP_DISPLAY_LINES[@]}
     printf '\033[H'
     print_tui_line 'Keyboard help' $'\033[1m'
     printf '\n'
     [ "$TUI_VERTICAL_PADDING" -eq 0 ] || printf '\033[K\n'
     for ((index = HELP_POSITION; index < position_end; index++)); do
-        print_tui_line "${HELP_LINES[$index]}"
+        print_tui_line "${HELP_DISPLAY_LINES[$index]}"
         printf '\n'
     done
     [ "$TUI_VERTICAL_PADDING" -eq 0 ] || printf '\033[K\n'
@@ -590,9 +623,9 @@ print_confirmation_tree() {
         if [ "${NODE_SELECTED_TOOLS[$node_index]}" -gt 0 ]; then
             printf -v indent '%*s' "$((${NODE_DEPTHS[$node_index]} * 2))" ''
             if [ "$tool_index" -lt 0 ]; then
-                printf '%s%s\n' "$indent" "${NODE_LABELS[$node_index]}"
+                _output_line 0 "${NODE_LABELS[$node_index]}" "$indent" "$indent  "
             else
-                printf '%s- %s\n' "$indent" "${NODE_LABELS[$node_index]}"
+                _output_line 0 "${NODE_LABELS[$node_index]}" "$indent- " "$indent  "
             fi
         fi
     done
@@ -610,9 +643,12 @@ confirm_selection() {
 
     TUI_MESSAGE=''
     restore_terminal
-    printf '\nReview selected items (%s):\n\n' "$mode_label"
+    printf '\n' >&2
+    _output_line 0 "Review selected items (${mode_label}):" '' '  '
+    printf '\n' >&2
     print_confirmation_tree
-    printf '\n%s %s selected tools? [y/N] ' "$mode_label" "$SELECTED_TOOL_COUNT"
+    printf '\n' >&2
+    print_prompt "${mode_label} ${SELECTED_TOOL_COUNT} selected tools? [y/N]" ''
     IFS= read -r answer || answer=''
     case "$answer" in
         y|Y)
@@ -674,12 +710,16 @@ handle_tui_key() {
 
 run_tui() {
     if [ ! -t 0 ] || [ ! -t 1 ]; then
-        printf 'hostinit requires an interactive terminal\n' >&2
+        FAILURE_REASON='hostinit requires an interactive terminal'
         return 1
     fi
     STTY_STATE=$(stty -g) || return $?
     activate_terminal || return $?
-    printf 'hostinit - %s\033[K\n\033[K\nChecking installed tools...\033[K\n\033[J' "$PLATFORM"
+    read_terminal_size
+    print_tui_line "hostinit - ${PLATFORM}"
+    printf '\n\033[K\n'
+    print_tui_line 'Checking installed tools...'
+    printf '\n\033[J'
     initialize_tui || return $?
 
     while [ -z "$ACTION" ]; do

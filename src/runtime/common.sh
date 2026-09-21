@@ -2,7 +2,6 @@ TUI_ACTIVE=0
 STTY_STATE=''
 ACTION=''
 MODE='install'
-CURRENT_OPERATION=''
 APT_METADATA_REFRESHED=0
 APT_INSTALLED_CACHE_READY=0
 APT_INSTALLED_PACKAGES=''
@@ -19,6 +18,11 @@ fatal() {
             status=1
             ;;
     esac
+    FAILURE_REASON=${2:-"${CURRENT_STEP:-Operation failed} (exit ${status})"}
+    if [ "${REPORT_ACTIVE:-0}" -ne 1 ] || [ "$BASH_SUBSHELL" -ne "$REPORT_SUBSHELL" ]; then
+        restore_terminal
+        _output_line '1;31' "Error: ${FAILURE_REASON}"
+    fi
     exit "$status"
 }
 
@@ -27,7 +31,7 @@ run_checked() {
 
     "$@"
     status=$?
-    [ "$status" -eq 0 ] || fatal "$status"
+    [ "$status" -eq 0 ] || fatal "$status" "${FAILURE_REASON:-${CURRENT_STEP:-Command failed}: $1 (exit ${status})}"
 }
 
 run_as_root() {
@@ -36,35 +40,6 @@ run_as_root() {
     else
         run_checked sudo "$@"
     fi
-}
-
-_print_status() {
-    local color=$1
-    local item
-    local message=$2
-
-    shift 2
-    printf '\n\033[%sm==> %s' "$color" "$message"
-    for item in "$@"; do
-        printf ' %s' "$item"
-    done
-    printf '\033[0m\n'
-}
-
-print_step() {
-    _print_status '1;36' "$@"
-}
-
-print_success() {
-    _print_status '1;32' "$@"
-}
-
-print_skip() {
-    _print_status '90' "$@"
-}
-
-print_failure() {
-    _print_status '1;31' "$@" >&2
 }
 
 _os_release_value() {
@@ -99,9 +74,7 @@ finish() {
     local status=$?
 
     restore_terminal
-    if [ "$status" -ne 0 ] && [ -n "$CURRENT_OPERATION" ]; then
-        print_failure "Failed: ${CURRENT_OPERATION} (exit ${status})"
-    fi
+    finish_report "$status"
     return "$status"
 }
 

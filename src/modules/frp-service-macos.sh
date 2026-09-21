@@ -28,11 +28,8 @@ _frp_brew_print_next_step() {
     prefix=$(brew --prefix)
     status=$?
     [ "$status" -eq 0 ] || fatal "$status"
-    printf '\n\033[1;33mACTION REQUIRED:\033[0m\n'
-    printf 'Edit %s/etc/frp/%s.toml, then start the Homebrew service:\n' \
-        "$prefix" "$component"
-    printf '  brew services start %s\n' "$component"
-    printf '\n'
+    print_action_required "Edit ${prefix}/etc/frp/${component}.toml, then run:"$'\n'"  brew services start ${component}"
+    set_operation_result skipped 'service requires manual configuration'
 }
 
 frpc-service_is_installed() {
@@ -40,7 +37,8 @@ frpc-service_is_installed() {
 }
 
 frpc-service_install() {
-    _frp_brew_service_ready frpc || fatal 1
+    print_step 'Checking the frpc service configuration'
+    _frp_brew_service_ready frpc || fatal 1 'Install frpc and its Homebrew configuration before setting up the service'
     _frp_brew_print_next_step frpc
 }
 
@@ -49,6 +47,7 @@ frps-service_is_installed() {
 }
 
 frps-service_install() {
-    _frp_brew_service_ready frps || fatal 1
+    print_step 'Checking the frps service configuration'
+    _frp_brew_service_ready frps || fatal 1 'Install frps and its Homebrew configuration before setting up the service'
     _frp_brew_print_next_step frps
 }

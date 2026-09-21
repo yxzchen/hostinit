@@ -1,50 +1,45 @@
 run_custom_tool() {
     local tool_index=$1
-    local tool_label=${TOOL_LABELS[$tool_index]}
     local function_prefix=${TOOL_NAMES[$tool_index]}
     local status
 
+    begin_tools "$tool_index"
     if ! tool_supports_action "$tool_index" "$MODE"; then
-        print_skip "Skipped (${MODE} not supported): ${tool_label}"
+        record_result "$tool_index" skipped "${MODE} not supported"
         return 0
     fi
 
-    CURRENT_OPERATION=$tool_label
     tool_is_installed "$tool_index"
     status=$?
     case "$MODE:$status" in
         install:0)
-            print_skip "Skipped (already installed): ${tool_label}"
-            CURRENT_OPERATION=''
+            record_result "$tool_index" skipped 'already installed'
             return 0
             ;;
         install:1)
-            print_step "Installing: ${tool_label}"
+            CURRENT_STEP='Installing selected item'
             run_checked "${function_prefix}_install"
-            print_success "Installed: ${tool_label}"
-            CURRENT_OPERATION=''
+            record_result "$tool_index" "${OPERATION_RESULT:-installed}" "$OPERATION_REASON"
             return 0
             ;;
         update:0) ;;
         update:1)
-            print_skip "Skipped (not installed): ${tool_label}"
-            CURRENT_OPERATION=''
+            record_result "$tool_index" skipped 'not installed'
             return 0
             ;;
         *)
-            exit "$status"
+            fatal "$status" "Could not check installation status (exit ${status})"
             ;;
     esac
 
-    print_step "Updating: ${tool_label}"
+    CURRENT_STEP='Updating selected item'
     "${function_prefix}_update"
     status=$?
     case "$status" in
-        0) print_success "Updated: ${tool_label}" ;;
-        1) print_skip "No changes: ${tool_label}" ;;
-        *) exit "$status" ;;
+        0) record_result "$tool_index" "${OPERATION_RESULT:-updated}" "$OPERATION_REASON" ;;
+        1) record_result "$tool_index" "${OPERATION_RESULT:-unchanged}" "${OPERATION_REASON:-no changes needed}" ;;
+        *) fatal "$status" ;;
     esac
-    CURRENT_OPERATION=''
 }
 
 flush_package_batch() {
@@ -64,6 +59,7 @@ execute_selected() {
     local index
     local kind
 
+    start_report
     BATCH_KIND=''
     BATCH_TOOL_INDEXES=()
     for ((index = 0; index < TOOL_COUNT; index++)); do
@@ -84,4 +80,5 @@ execute_selected() {
         fi
     done
     flush_package_batch
+    finish_report
 }

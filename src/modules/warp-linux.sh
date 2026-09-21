@@ -5,6 +5,7 @@ _warp_codename() {
 }
 
 _warp_configure() {
+    print_step 'Configuring the WARP proxy'
     if ! warp-cli --accept-tos registration show >/dev/null 2>&1; then
         run_checked warp-cli --accept-tos registration new
     fi
@@ -20,6 +21,7 @@ _warp_refresh_key() {
     local status
     local temp_dir
 
+    print_step 'Verifying the WARP repository signing key'
     temp_dir=$(mktemp -d "${TMPDIR:-/tmp}/hostinit-warp-key.XXXXXX")
     status=$?
     [ "$status" -eq 0 ] || fatal "$status"
@@ -37,7 +39,7 @@ _warp_refresh_key() {
     [ "$status" -eq 0 ] || { rm -rf "$temp_dir"; fatal "$status"; }
     if [ "$actual_fingerprint" != C068A2B5771775193CBE1F2F6E2DD2174FA1C3BA ]; then
         rm -rf "$temp_dir"
-        fatal 1
+        fatal 1 'The WARP repository signing key has an unexpected fingerprint'
     fi
     gpg --batch --yes --dearmor --output "$dearmored" "$key"
     status=$?
@@ -54,12 +56,13 @@ _warp_install_package() {
     local status
     local temp_dir
 
-    arch=$(dpkg --print-architecture)
+    print_step 'Configuring the WARP package repository'
+    arch=$(dpkg --print-architecture) || fatal $? 'Could not determine the package architecture'
     case "$arch" in
         amd64|arm64) ;;
-        *) fatal 1 ;;
+        *) fatal 1 "WARP does not support this architecture: ${arch}" ;;
     esac
-    codename=$(_warp_codename)
+    codename=$(_warp_codename) || fatal $? 'Could not determine the distribution codename'
     _warp_refresh_key
 
     temp_dir=$(mktemp -d "${TMPDIR:-/tmp}/hostinit-warp-source.XXXXXX")
@@ -73,6 +76,7 @@ _warp_install_package() {
     run_as_root install -m 0644 "$source" /etc/apt/sources.list.d/cloudflare-client.list
     rm -rf "$temp_dir"
     run_as_root apt-get update
+    print_step 'Installing the WARP package'
     run_as_root apt-get install -y cloudflare-warp
 }
 
@@ -100,6 +104,7 @@ warp_update() {
     before=$(dpkg-query -W -f='${Version}' cloudflare-warp)
     status=$?
     [ "$status" -eq 0 ] || fatal "$status"
+    print_step 'Updating the WARP package'
     run_as_root apt-get install --only-upgrade -y cloudflare-warp
     after=$(dpkg-query -W -f='${Version}' cloudflare-warp)
     status=$?
