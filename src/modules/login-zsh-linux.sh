@@ -55,10 +55,6 @@ login-zsh_is_installed() {
         { [ -e "$current" ] && [ -e "$shell_path" ] && [ "$current" -ef "$shell_path" ]; }
 }
 
-login-zsh_needs_update() {
-    return 1
-}
-
 login-zsh_install() {
     local allowed_shell
     local shell_path
@@ -78,8 +74,4 @@ login-zsh_install() {
     printf '\n\033[1;31mACTION REQUIRED:\033[0m\n'
     printf 'Sign out and sign in again to use the new login shell.\n'
     printf '\n'
-}
-
-login-zsh_update() {
-    return 0
 }

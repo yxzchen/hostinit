@@ -4,7 +4,12 @@ run_custom_tool() {
     local function_prefix=${TOOL_NAMES[$tool_index]}
     local status
 
-    "${function_prefix}_is_installed"
+    if ! tool_supports_action "$tool_index" "$MODE"; then
+        print_skip "skipped (${MODE} not supported): ${tool_label}"
+        return 0
+    fi
+
+    tool_is_installed "$tool_index"
     status=$?
     case "$MODE:$status" in
         install:0)
@@ -20,19 +25,6 @@ run_custom_tool() {
         update:0) ;;
         update:1)
             print_skip "not updated (not installed): ${tool_label}"
-            return 0
-            ;;
-        *)
-            exit "$status"
-            ;;
-    esac
-
-    "${function_prefix}_needs_update"
-    status=$?
-    case "$status" in
-        0) ;;
-        1)
-            print_skip "not updated: ${tool_label}"
             return 0
             ;;
         *)

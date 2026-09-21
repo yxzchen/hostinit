@@ -162,15 +162,6 @@ _codex_switch_stop() {
     return "$status"
 }
 
-codex-switch_is_installed() {
-    # Actions remain available each time hostinit runs.
-    return 1
-}
-
-codex-switch_needs_update() {
-    return 1
-}
-
 codex-switch_install() {
     local codex_dir=${CODEX_HOME:-$HOME/.codex}
     # Helpers write their results into this invocation's local scope.
@@ -187,8 +178,4 @@ codex-switch_install() {
     fi
     printf 'Switched Codex account to %s.\n' "$CODEX_SWITCH_SELECTION"
     _codex_switch_stop
-}
-
-codex-switch_update() {
-    return 0
 }

@@ -152,12 +152,27 @@ brew_cask_installed() {
     installed_list_contains "$BREW_INSTALLED_CASKS" "$1"
 }
 
+# Custom modules expose only supported actions. Updates also require an
+# installation check; actions without one remain available in install mode.
+tool_supports_action() {
+    local tool_index=$1
+    local action=$2
+
+    [ "${TOOL_SOURCES[$tool_index]}" = custom ] || return 0
+    declare -F "${TOOL_NAMES[$tool_index]}_${action}" >/dev/null || return 1
+    if [ "$action" = update ]; then
+        declare -F "${TOOL_NAMES[$tool_index]}_is_installed" >/dev/null || return 1
+    fi
+    return 0
+}
+
 tool_is_installed() {
     local kind
     local package
     local tool_index=$1
 
     if [ "${TOOL_SOURCES[$tool_index]}" = custom ]; then
+        declare -F "${TOOL_NAMES[$tool_index]}_is_installed" >/dev/null || return 1
         "${TOOL_NAMES[$tool_index]}_is_installed"
         return $?
     fi

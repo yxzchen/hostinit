@@ -43,6 +43,12 @@ increment_node_selected_tools() {
     NODE_SELECTED_TOOLS[$node_index]=$((${NODE_SELECTED_TOOLS[$node_index]} + 1))
 }
 
+increment_node_selectable_tools() {
+    local node_index=$1
+
+    NODE_SELECTABLE_TOOLS[$node_index]=$((${NODE_SELECTABLE_TOOLS[$node_index]} + 1))
+}
+
 rebuild_visible_nodes() {
     local node_index
     local parent
@@ -92,6 +98,7 @@ tool_is_selectable() {
     local tool_index=$1
 
     [ "${TOOL_ENABLED[$tool_index]}" -eq 1 ] || return 1
+    tool_supports_action "$tool_index" "$MODE" || return 1
     if [ "$MODE" = install ]; then
         [ "${TOOL_INSTALLED[$tool_index]}" -eq 0 ]
     else
@@ -101,14 +108,17 @@ tool_is_selectable() {
 
 refresh_selectable_counts() {
     local node_index
+    local tool_index
 
-    # Totals include only enabled tools; installation status stays fixed in the TUI.
+    # Count supported actions using the installation status cached by the TUI.
     NODE_SELECTABLE_TOOLS=()
     for ((node_index = 0; node_index < NODE_COUNT; node_index++)); do
-        if [ "$MODE" = install ]; then
-            NODE_SELECTABLE_TOOLS[$node_index]=$((${NODE_TOTAL_TOOLS[$node_index]} - ${NODE_INSTALLED_TOOLS[$node_index]}))
-        else
-            NODE_SELECTABLE_TOOLS[$node_index]=${NODE_INSTALLED_TOOLS[$node_index]}
+        NODE_SELECTABLE_TOOLS[$node_index]=0
+    done
+    for ((node_index = 0; node_index < NODE_COUNT; node_index++)); do
+        tool_index=${NODE_TOOL_INDEXES[$node_index]}
+        if [ "$tool_index" -ge 0 ] && tool_is_selectable "$tool_index"; then
+            visit_node_and_ancestors "$node_index" increment_node_selectable_tools
         fi
     done
 }
@@ -337,7 +347,11 @@ render_tui() {
         line="$cursor $indent[$marker] ${NODE_LABELS[$node_index]}"
         [ -z "$indicator" ] || line="$line $indicator"
         if [ "$tool_index" -lt 0 ]; then
-            line="$line (${NODE_INSTALLED_TOOLS[$node_index]}/${NODE_TOTAL_TOOLS[$node_index]})"
+            if [ "$MODE" = update ]; then
+                line="$line (${NODE_SELECTED_TOOLS[$node_index]}/${NODE_SELECTABLE_TOOLS[$node_index]})"
+            else
+                line="$line (${NODE_INSTALLED_TOOLS[$node_index]}/${NODE_TOTAL_TOOLS[$node_index]})"
+            fi
         fi
         print_tui_line "$line" "$style"
         printf '\n'

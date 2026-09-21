@@ -21,10 +21,6 @@ zimfw_is_installed() {
         [ -f "$zimrc" ]
 }
 
-zimfw_needs_update() {
-    return 0
-}
-
 _zimfw_check_updates() {
     local module_output
     local status

@@ -39,10 +39,6 @@ dotfiles_is_installed() {
     return 0
 }
 
-dotfiles_needs_update() {
-    return 0
-}
-
 dotfiles_install() {
     local base_url=${DOTFILES_BASE_URL:-https://raw.githubusercontent.com/yxzchen/hostinit/master/dotfiles}
     local filename

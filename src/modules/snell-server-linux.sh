@@ -6,10 +6,6 @@ snell-server_is_installed() {
         [ -f /etc/systemd/system/snell.service ]
 }
 
-snell-server_needs_update() {
-    return 1
-}
-
 snell-server_install() (
     local arch
     local config_action=preserved
@@ -94,7 +90,3 @@ snell-server_install() (
     printf '\nAutostart enabled. To start the service manually:\n'
     printf '  sudo systemctl start snell.service\n\n'
 )
-
-snell-server_update() {
-    return 0
-}

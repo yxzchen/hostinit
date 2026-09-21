@@ -1140,10 +1140,6 @@ login-zsh_is_installed() {
         { [ -e "$current" ] && [ -e "$shell_path" ] && [ "$current" -ef "$shell_path" ]; }
 }
 
-login-zsh_needs_update() {
-    return 1
-}
-
 login-zsh_install() {
     local allowed_shell
     local shell_path
@@ -1163,10 +1159,6 @@ login-zsh_install() {
     printf '\n\033[1;31mACTION REQUIRED:\033[0m\n'
     printf 'Sign out and sign in again to use the new login shell.\n'
     printf '\n'
-}
-
-login-zsh_update() {
-    return 0
 }
 }
 
@@ -1192,10 +1184,6 @@ zimfw_is_installed() {
     [ -f "$zim_home/zimfw.zsh" ] &&
         [ -f "$zim_home/init.zsh" ] &&
         [ -f "$zimrc" ]
-}
-
-zimfw_needs_update() {
-    return 0
 }
 
 _zimfw_check_updates() {
@@ -1304,10 +1292,6 @@ locale-en-us_is_installed() {
     _locale_en_us_generated && _locale_en_us_default
 }
 
-locale-en-us_needs_update() {
-    return 1
-}
-
 locale-en-us_install() {
     if ! _locale_en_us_generated; then
         if grep -Eq '^[[:space:]]*en_US\.UTF-8[[:space:]]+UTF-8[[:space:]]*$' \
@@ -1328,10 +1312,6 @@ locale-en-us_install() {
         run_as_root env LC_ALL=C LANG=C update-locale LANG=en_US.UTF-8
         _locale_en_us_default || fatal 1
     fi
-}
-
-locale-en-us_update() {
-    return 0
 }
 }
 
@@ -1374,10 +1354,6 @@ dotfiles_is_installed() {
     for filename in "${DOTFILES_EXPECTED_FILES[@]}"; do
         [ -f "$HOME/$filename" ] || return 1
     done
-    return 0
-}
-
-dotfiles_needs_update() {
     return 0
 }
 
@@ -1497,10 +1473,6 @@ brew_is_installed() {
     [ -f "$HOME/.zprofile" ] && grep -Fqx "$line" "$HOME/.zprofile" || return 1
     shellenv=$("$brew_bin" shellenv) || return 1
     eval "$shellenv" || return 1
-}
-
-brew_needs_update() {
-    return 0
 }
 
 brew_install() {
@@ -1663,32 +1635,16 @@ frpc-service_is_installed() {
     _frp_systemd_is_installed frpc
 }
 
-frpc-service_needs_update() {
-    return 1
-}
-
 frpc-service_install() {
     _frp_systemd_register frpc
-}
-
-frpc-service_update() {
-    return 0
 }
 
 frps-service_is_installed() {
     _frp_systemd_is_installed frps
 }
 
-frps-service_needs_update() {
-    return 1
-}
-
 frps-service_install() {
     _frp_systemd_register frps
-}
-
-frps-service_update() {
-    return 0
 }
 }
 
@@ -1801,10 +1757,6 @@ docker_is_installed() {
         *' docker '*) return 0 ;;
         *) return 1 ;;
     esac
-}
-
-docker_needs_update() {
-    return 0
 }
 
 docker_install() {
@@ -1928,10 +1880,6 @@ warp_is_installed() {
         warp-cli --accept-tos registration show >/dev/null 2>&1
 }
 
-warp_needs_update() {
-    return 0
-}
-
 warp_install() {
     apt_package_installed cloudflare-warp || _warp_install_package
     run_as_root systemctl enable --now warp-svc.service
@@ -1967,10 +1915,6 @@ snell-server_is_installed() {
     [ -x /usr/local/bin/snell-server ] &&
         [ -f /etc/snell/snell.conf ] &&
         [ -f /etc/systemd/system/snell.service ]
-}
-
-snell-server_needs_update() {
-    return 1
 }
 
 snell-server_install() (
@@ -2057,23 +2001,10 @@ snell-server_install() (
     printf '\nAutostart enabled. To start the service manually:\n'
     printf '  sudo systemctl start snell.service\n\n'
 )
-
-snell-server_update() {
-    return 0
-}
 }
 
 __load_custom_9() {
 #!/usr/bin/env bash
-
-create-user_is_installed() {
-    # Actions remain available each time hostinit runs.
-    return 1
-}
-
-create-user_needs_update() {
-    return 1
-}
 
 create-user_install() {
     local username
@@ -2165,10 +2096,6 @@ sudo -u "$username" -- sudo -n -- true
 completed=1
 printf 'Created %s with home directory /home/%s and passwordless sudo.\n' "$username" "$username"
 CREATE_USER
-}
-
-create-user_update() {
-    return 0
 }
 }
 
@@ -2337,15 +2264,6 @@ _codex_switch_stop() {
     return "$status"
 }
 
-codex-switch_is_installed() {
-    # Actions remain available each time hostinit runs.
-    return 1
-}
-
-codex-switch_needs_update() {
-    return 1
-}
-
 codex-switch_install() {
     local codex_dir=${CODEX_HOME:-$HOME/.codex}
     # Helpers write their results into this invocation's local scope.
@@ -2362,10 +2280,6 @@ codex-switch_install() {
     fi
     printf 'Switched Codex account to %s.\n' "$CODEX_SWITCH_SELECTION"
     _codex_switch_stop
-}
-
-codex-switch_update() {
-    return 0
 }
 }
 
@@ -2411,34 +2325,18 @@ frpc-service_is_installed() {
     _frp_brew_service_registered frpc
 }
 
-frpc-service_needs_update() {
-    return 1
-}
-
 frpc-service_install() {
     _frp_brew_service_ready frpc || fatal 1
     _frp_brew_print_next_step frpc
-}
-
-frpc-service_update() {
-    return 0
 }
 
 frps-service_is_installed() {
     _frp_brew_service_registered frps
 }
 
-frps-service_needs_update() {
-    return 1
-}
-
 frps-service_install() {
     _frp_brew_service_ready frps || fatal 1
     _frp_brew_print_next_step frps
-}
-
-frps-service_update() {
-    return 0
 }
 }
 
@@ -2700,6 +2598,12 @@ increment_node_selected_tools() {
     NODE_SELECTED_TOOLS[$node_index]=$((${NODE_SELECTED_TOOLS[$node_index]} + 1))
 }
 
+increment_node_selectable_tools() {
+    local node_index=$1
+
+    NODE_SELECTABLE_TOOLS[$node_index]=$((${NODE_SELECTABLE_TOOLS[$node_index]} + 1))
+}
+
 rebuild_visible_nodes() {
     local node_index
     local parent
@@ -2749,6 +2653,7 @@ tool_is_selectable() {
     local tool_index=$1
 
     [ "${TOOL_ENABLED[$tool_index]}" -eq 1 ] || return 1
+    tool_supports_action "$tool_index" "$MODE" || return 1
     if [ "$MODE" = install ]; then
         [ "${TOOL_INSTALLED[$tool_index]}" -eq 0 ]
     else
@@ -2758,14 +2663,17 @@ tool_is_selectable() {
 
 refresh_selectable_counts() {
     local node_index
+    local tool_index
 
-    # Totals include only enabled tools; installation status stays fixed in the TUI.
+    # Count supported actions using the installation status cached by the TUI.
     NODE_SELECTABLE_TOOLS=()
     for ((node_index = 0; node_index < NODE_COUNT; node_index++)); do
-        if [ "$MODE" = install ]; then
-            NODE_SELECTABLE_TOOLS[$node_index]=$((${NODE_TOTAL_TOOLS[$node_index]} - ${NODE_INSTALLED_TOOLS[$node_index]}))
-        else
-            NODE_SELECTABLE_TOOLS[$node_index]=${NODE_INSTALLED_TOOLS[$node_index]}
+        NODE_SELECTABLE_TOOLS[$node_index]=0
+    done
+    for ((node_index = 0; node_index < NODE_COUNT; node_index++)); do
+        tool_index=${NODE_TOOL_INDEXES[$node_index]}
+        if [ "$tool_index" -ge 0 ] && tool_is_selectable "$tool_index"; then
+            visit_node_and_ancestors "$node_index" increment_node_selectable_tools
         fi
     done
 }
@@ -2994,7 +2902,11 @@ render_tui() {
         line="$cursor $indent[$marker] ${NODE_LABELS[$node_index]}"
         [ -z "$indicator" ] || line="$line $indicator"
         if [ "$tool_index" -lt 0 ]; then
-            line="$line (${NODE_INSTALLED_TOOLS[$node_index]}/${NODE_TOTAL_TOOLS[$node_index]})"
+            if [ "$MODE" = update ]; then
+                line="$line (${NODE_SELECTED_TOOLS[$node_index]}/${NODE_SELECTABLE_TOOLS[$node_index]})"
+            else
+                line="$line (${NODE_INSTALLED_TOOLS[$node_index]}/${NODE_TOTAL_TOOLS[$node_index]})"
+            fi
         fi
         print_tui_line "$line" "$style"
         printf '\n'
@@ -3391,12 +3303,27 @@ brew_cask_installed() {
     installed_list_contains "$BREW_INSTALLED_CASKS" "$1"
 }
 
+# Custom modules expose only supported actions. Updates also require an
+# installation check; actions without one remain available in install mode.
+tool_supports_action() {
+    local tool_index=$1
+    local action=$2
+
+    [ "${TOOL_SOURCES[$tool_index]}" = custom ] || return 0
+    declare -F "${TOOL_NAMES[$tool_index]}_${action}" >/dev/null || return 1
+    if [ "$action" = update ]; then
+        declare -F "${TOOL_NAMES[$tool_index]}_is_installed" >/dev/null || return 1
+    fi
+    return 0
+}
+
 tool_is_installed() {
     local kind
     local package
     local tool_index=$1
 
     if [ "${TOOL_SOURCES[$tool_index]}" = custom ]; then
+        declare -F "${TOOL_NAMES[$tool_index]}_is_installed" >/dev/null || return 1
         "${TOOL_NAMES[$tool_index]}_is_installed"
         return $?
     fi
@@ -3546,7 +3473,12 @@ run_custom_tool() {
     local function_prefix=${TOOL_NAMES[$tool_index]}
     local status
 
-    "${function_prefix}_is_installed"
+    if ! tool_supports_action "$tool_index" "$MODE"; then
+        print_skip "skipped (${MODE} not supported): ${tool_label}"
+        return 0
+    fi
+
+    tool_is_installed "$tool_index"
     status=$?
     case "$MODE:$status" in
         install:0)
@@ -3562,19 +3494,6 @@ run_custom_tool() {
         update:0) ;;
         update:1)
             print_skip "not updated (not installed): ${tool_label}"
-            return 0
-            ;;
-        *)
-            exit "$status"
-            ;;
-    esac
-
-    "${function_prefix}_needs_update"
-    status=$?
-    case "$status" in
-        0) ;;
-        1)
-            print_skip "not updated: ${tool_label}"
             return 0
             ;;
         *)

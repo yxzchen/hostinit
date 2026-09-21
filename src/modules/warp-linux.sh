@@ -83,10 +83,6 @@ warp_is_installed() {
         warp-cli --accept-tos registration show >/dev/null 2>&1
 }
 
-warp_needs_update() {
-    return 0
-}
-
 warp_install() {
     apt_package_installed cloudflare-warp || _warp_install_package
     run_as_root systemctl enable --now warp-svc.service

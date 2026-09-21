@@ -52,10 +52,6 @@ brew_is_installed() {
     eval "$shellenv" || return 1
 }
 
-brew_needs_update() {
-    return 0
-}
-
 brew_install() {
     local brew_bin
     local installer

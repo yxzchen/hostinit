@@ -12,10 +12,6 @@ locale-en-us_is_installed() {
     _locale_en_us_generated && _locale_en_us_default
 }
 
-locale-en-us_needs_update() {
-    return 1
-}
-
 locale-en-us_install() {
     if ! _locale_en_us_generated; then
         if grep -Eq '^[[:space:]]*en_US\.UTF-8[[:space:]]+UTF-8[[:space:]]*$' \
@@ -36,8 +32,4 @@ locale-en-us_install() {
         run_as_root env LC_ALL=C LANG=C update-locale LANG=en_US.UTF-8
         _locale_en_us_default || fatal 1
     fi
-}
-
-locale-en-us_update() {
-    return 0
 }

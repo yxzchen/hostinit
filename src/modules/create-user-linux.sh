@@ -1,14 +1,5 @@
 #!/usr/bin/env bash
 
-create-user_is_installed() {
-    # Actions remain available each time hostinit runs.
-    return 1
-}
-
-create-user_needs_update() {
-    return 1
-}
-
 create-user_install() {
     local username
 
@@ -99,8 +90,4 @@ sudo -u "$username" -- sudo -n -- true
 completed=1
 printf 'Created %s with home directory /home/%s and passwordless sudo.\n' "$username" "$username"
 CREATE_USER
-}
-
-create-user_update() {
-    return 0
 }

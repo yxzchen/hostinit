@@ -106,30 +106,14 @@ frpc-service_is_installed() {
     _frp_systemd_is_installed frpc
 }
 
-frpc-service_needs_update() {
-    return 1
-}
-
 frpc-service_install() {
     _frp_systemd_register frpc
-}
-
-frpc-service_update() {
-    return 0
 }
 
 frps-service_is_installed() {
     _frp_systemd_is_installed frps
 }
 
-frps-service_needs_update() {
-    return 1
-}
-
 frps-service_install() {
     _frp_systemd_register frps
-}
-
-frps-service_update() {
-    return 0
 }

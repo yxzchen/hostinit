@@ -108,10 +108,6 @@ docker_is_installed() {
     esac
 }
 
-docker_needs_update() {
-    return 0
-}
-
 docker_install() {
     _docker_install_missing_components
     _docker_configure_service

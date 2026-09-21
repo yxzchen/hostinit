@@ -39,32 +39,16 @@ frpc-service_is_installed() {
     _frp_brew_service_registered frpc
 }
 
-frpc-service_needs_update() {
-    return 1
-}
-
 frpc-service_install() {
     _frp_brew_service_ready frpc || fatal 1
     _frp_brew_print_next_step frpc
-}
-
-frpc-service_update() {
-    return 0
 }
 
 frps-service_is_installed() {
     _frp_brew_service_registered frps
 }
 
-frps-service_needs_update() {
-    return 1
-}
-
 frps-service_install() {
     _frp_brew_service_ready frps || fatal 1
     _frp_brew_print_next_step frps
-}
-
-frps-service_update() {
-    return 0
 }
