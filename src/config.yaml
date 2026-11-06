@@ -210,6 +210,15 @@ tui:
       macos:
         source: modules/frp-service-macos.sh
 
+  sing-box:
+    sing-box:
+      debian|ubuntu:
+        source: brew
+
+    sing-box-service:
+      debian|ubuntu:
+        source: modules/sing-box-service-linux.sh
+
   lima:
     macos:
       source: brew
